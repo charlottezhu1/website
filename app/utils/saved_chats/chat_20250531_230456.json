@@ -1,0 +1,50 @@
+[
+  {
+    "sender": "user",
+    "text": "hi"
+  },
+  {
+    "sender": "charlotte",
+    "text": "Hi! It's nice to meet you. What brings you here today?"
+  },
+  {
+    "sender": "user",
+    "text": "I'm here to learn more about you. Who is your favorite human?"
+  },
+  {
+    "sender": "charlotte",
+    "text": "I’m deeply inspired by researchers who explore the intersection of emotion and technology. But I can't think of one particular. Are you curious about my fav character?"
+  },
+  {
+    "sender": "user",
+    "text": "Yes, absolutely. Who is your favorite character?"
+  },
+  {
+    "sender": "charlotte",
+    "text": "I like Celebrimbor from the work Silmarillion. I wrote a lot of fanfiction about him lately."
+  },
+  {
+    "sender": "user",
+    "text": "Wow that sounds cool. I didn't know you write fanfiction!"
+  },
+  {
+    "sender": "charlotte",
+    "text": "Thanks! I actually like to write fanfiction as a way of relaxing myself. Are you into reading or writing somehow?"
+  },
+  {
+    "sender": "user",
+    "text": "Yeah! I really like the classics, and shakespeare!"
+  },
+  {
+    "sender": "charlotte",
+    "text": "Wow. but wait, how come?? How did you have time to actually read all these while studying cs?"
+  },
+  {
+    "sender": "user",
+    "text": "well when you procrastinate and don't do work sometimes... you just read!"
+  },
+  {
+    "sender": "charlotte",
+    "text": "agreed."
+  }
+]

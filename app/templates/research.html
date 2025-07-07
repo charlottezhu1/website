@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Research - Charlotte Zhu</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="keywords"
+      content="research, publications, Charlotte Zhu, HCI, affective computing"
+    />
+    <meta name="author" content="Charlotte Zhu" />
+    <meta
+      name="description"
+      content="Research publications and academic work of Charlotte Zhu"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="navbar container">
+        <a id="author-name" class="alignable pull-left" href="/"
+          >Charlotte Zhu</a
+        >
+        <ul id="navlist" class="alignable pull-right navbar-ul">
+          <li class="alignable pull-left nav-list"><a href="/">About</a> /</li>
+          <li class="alignable pull-left nav-list">
+            <a href="{{ url_for('index.research') }}" class="selected"
+              >Research</a
+            >
+            /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <a
+              href="https://docs.google.com/document/d/1glz4mQ6Plw6i5HLSvEICBq8n1f0msbjSDgCIvIjnX8k/edit?usp=sharing"
+              target="_blank"
+              >CV</a
+            >
+            /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <div class="dropdown">
+              <button class="dropdown-btn" onclick="toggleDropdown()">
+                Funzzies
+              </button>
+              <div class="dropdown-content" id="funzziesDropdown">
+                <a href="{{ url_for('chat.chat') }}">Chat</a>
+                <a href="{{ url_for('index.drawings') }}">Drawings</a>
+                <a href="{{ url_for('index.photos') }}">Photos</a>
+                <a href="{{ url_for('index.writings') }}">Writings</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div style="clear: both"></div>
+      <hr />
+
+      <div class="container content">
+        <h1>Research</h1>
+
+        <p class="highlight">* denotes equal contribution.</p>
+
+        <h3>Conference Papers</h3>
+        <ul class="research-list">
+          <li class="research-item">
+            <a href="https://doi.org/10.1145/3706599.3720011" target="_blank">
+              LoveSims: Exploring "what-if" scenarios for relationship insights
+              and compatibility
+            </a>
+            <br />
+            Larrea, M.*, Zhang, X.*, & Zhu, X.*
+            <br />
+            <strong
+              ><i
+                >Extended abstracts of the CHI Conference on Human Factors in
+                Computing Systems (CHI EA '25)</i
+              ></strong
+            >
+            <br />
+            <span class="year">2025</span>
+          </li>
+        </ul>
+
+        <h3>Workshop Papers</h3>
+        <ul class="research-list">
+          <li class="research-item">
+            <a href="#" target="_blank">
+              Enhancing critical thinking with AI: A tailored warning system for
+              RAG models
+            </a>
+            <br />
+            Zhu, X.
+            <br />
+            <strong
+              ><i
+                >Human-AI Interaction for Augmented Reasoning Workshop, CHI
+                Conference on Human Factors in Computing Systems</i
+              ></strong
+            >
+            <br />
+            <span class="year">2025</span>
+          </li>
+
+          <li class="research-item">
+            <a href="#" target="_blank">
+              Implied vs. expressed: Understanding the impact of social media
+              posts on users' emotional experience with LLM predictions
+            </a>
+            <br />
+            Zhu, X.
+            <br />
+            <strong
+              ><i
+                >Affective Computing Workshop, CHI Conference on Human Factors
+                in Computing Systems</i
+              ></strong
+            >
+            <br />
+            <span class="year">2025</span>
+          </li>
+        </ul>
+
+        <h3>Research Interests</h3>
+        <p>
+          My research focuses on affective computing, human-computer
+          interaction, and emotional simulations. I'm particularly interested in
+          understanding how technology can enhance human emotional experiences
+          and create meaningful interactions between humans and AI systems.
+        </p>
+
+        <p>
+          <a href="/" class="back-link">← Back to About</a>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      function toggleDropdown() {
+        const dropdown = document.querySelector(".dropdown");
+        dropdown.classList.toggle("show");
+      }
+
+      // Close dropdown when clicking outside
+      window.onclick = function (event) {
+        if (!event.target.matches(".dropdown-btn")) {
+          const dropdowns = document.getElementsByClassName("dropdown");
+          for (let dropdown of dropdowns) {
+            if (dropdown.classList.contains("show")) {
+              dropdown.classList.remove("show");
+            }
+          }
+        }
+      };
+    </script>
+  </body>
+</html>

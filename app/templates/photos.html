@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Photos - Charlotte Zhu</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="keywords"
+      content="photos, photography, Charlotte Zhu, images"
+    />
+    <meta name="author" content="Charlotte Zhu" />
+    <meta
+      name="description"
+      content="Photography and images by Charlotte Zhu"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="navbar container">
+        <a id="author-name" class="alignable pull-left" href="/"
+          >Charlotte Zhu</a
+        >
+        <ul id="navlist" class="alignable pull-right navbar-ul">
+          <li class="alignable pull-left nav-list"><a href="/">About</a> /</li>
+          <li class="alignable pull-left nav-list">
+            <a href="{{ url_for('index.research') }}">Research</a> /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <a
+              href="https://docs.google.com/document/d/1glz4mQ6Plw6i5HLSvEICBq8n1f0msbjSDgCIvIjnX8k/edit?usp=sharing"
+              target="_blank"
+              >CV</a
+            >
+            /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <div class="dropdown">
+              <button class="dropdown-btn" onclick="toggleDropdown()">
+                Funzzies
+              </button>
+              <div class="dropdown-content" id="funzziesDropdown">
+                <a href="{{ url_for('chat.chat') }}">Chat</a>
+                <a href="{{ url_for('index.drawings') }}">Drawings</a>
+                <a href="{{ url_for('index.photos') }}" class="selected"
+                  >Photos</a
+                >
+                <a href="{{ url_for('index.writings') }}">Writings</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div style="clear: both"></div>
+      <hr />
+
+      <div class="container content">
+        <h1>Photos</h1>
+
+        <p>
+          Welcome to my photography collection! Here you'll find snapshots from
+          my travels, daily life, and moments that caught my eye. I love
+          capturing the beauty in everyday moments.
+        </p>
+
+        <!-- Instagram Feed Section -->
+        <div class="instagram-section">
+          <h3>Instagram Photography</h3>
+          <p>
+            Follow my photography journey on Instagram @charlottez_photo for
+            daily captures, travel moments, and creative shots.
+          </p>
+
+          <!-- Instagram Embed Container -->
+          <div class="instagram-embed-container">
+            <!-- Instagram Profile Link -->
+            <div class="instagram-link">
+              <a
+                href="https://www.instagram.com/charlottez_photo/"
+                target="_blank"
+                class="instagram-btn"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+                  />
+                </svg>
+                Follow @charlottez_photo
+              </a>
+            </div>
+
+            <!-- Instagram Stats -->
+            <div class="instagram-stats">
+              <div class="stat-item">
+                <span class="stat-number">📸</span>
+                <span class="stat-label">Photography</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">🌍</span>
+                <span class="stat-label">Travel</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">✨</span>
+                <span class="stat-label">Creative</span>
+              </div>
+            </div>
+
+            <!-- Recent Photos Preview -->
+            <div class="instagram-preview">
+              <h4>Featured Shots</h4>
+              <div class="instagram-grid">
+                <!-- These would be populated with actual Instagram photos -->
+                <div class="instagram-photo">
+                  <div class="photo-placeholder">
+                    <span>📷</span>
+                    <p>Travel</p>
+                  </div>
+                </div>
+                <div class="instagram-photo">
+                  <div class="photo-placeholder">
+                    <span>📷</span>
+                    <p>Portrait</p>
+                  </div>
+                </div>
+                <div class="instagram-photo">
+                  <div class="photo-placeholder">
+                    <span>📷</span>
+                    <p>Nature</p>
+                  </div>
+                </div>
+                <div class="instagram-photo">
+                  <div class="photo-placeholder">
+                    <span>📷</span>
+                    <p>Street</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-container">
+          <!-- Placeholder for photos - you can add your actual images here -->
+          <div class="gallery-item">
+            <div class="placeholder-image">
+              <p>Photo 1</p>
+              <p class="placeholder-text">Coming soon...</p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <div class="placeholder-image">
+              <p>Photo 2</p>
+              <p class="placeholder-text">Coming soon...</p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <div class="placeholder-image">
+              <p>Photo 3</p>
+              <p class="placeholder-text">Coming soon...</p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <div class="placeholder-image">
+              <p>Photo 4</p>
+              <p class="placeholder-text">Coming soon...</p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <div class="placeholder-image">
+              <p>Photo 5</p>
+              <p class="placeholder-text">Coming soon...</p>
+            </div>
+          </div>
+
+          <div class="gallery-item">
+            <div class="placeholder-image">
+              <p>Photo 6</p>
+              <p class="placeholder-text">Coming soon...</p>
+            </div>
+          </div>
+        </div>
+
+        <p>
+          <a href="/" class="back-link">← Back to About</a>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      function toggleDropdown() {
+        const dropdown = document.querySelector(".dropdown");
+        dropdown.classList.toggle("show");
+      }
+
+      // Close dropdown when clicking outside
+      window.onclick = function (event) {
+        if (!event.target.matches(".dropdown-btn")) {
+          const dropdowns = document.getElementsByClassName("dropdown");
+          for (let dropdown of dropdowns) {
+            if (dropdown.classList.contains("show")) {
+              dropdown.classList.remove("show");
+            }
+          }
+        }
+      };
+    </script>
+  </body>
+</html>

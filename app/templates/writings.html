@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Writings - Charlotte Zhu</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="keywords" content="writings, articles, blog, Charlotte Zhu" />
+    <meta name="author" content="Charlotte Zhu" />
+    <meta
+      name="description"
+      content="Collection of writings and articles by Charlotte Zhu"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="navbar container">
+        <a id="author-name" class="alignable pull-left" href="/"
+          >Charlotte Zhu</a
+        >
+        <ul id="navlist" class="alignable pull-right navbar-ul">
+          <li class="alignable pull-left nav-list"><a href="/">About</a> /</li>
+          <li class="alignable pull-left nav-list">
+            <a href="{{ url_for('index.research') }}">Research</a> /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <a
+              href="https://docs.google.com/document/d/1glz4mQ6Plw6i5HLSvEICBq8n1f0msbjSDgCIvIjnX8k/edit?usp=sharing"
+              target="_blank"
+              >CV</a
+            >
+            /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <div class="dropdown">
+              <button class="dropdown-btn" onclick="toggleDropdown()">
+                Funzzies
+              </button>
+              <div class="dropdown-content" id="funzziesDropdown">
+                <a href="{{ url_for('chat.chat') }}">Chat</a>
+                <a href="{{ url_for('index.drawings') }}">Drawings</a>
+                <a href="{{ url_for('index.photos') }}">Photos</a>
+                <a href="{{ url_for('index.writings') }}" class="selected"
+                  >Writings</a
+                >
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div style="clear: both"></div>
+      <hr />
+
+      <div class="container content">
+        <h1>Writings</h1>
+
+        <p>
+          Welcome to my writing collection! Here you'll find articles about
+          emotions, AI, human experience, and other topics that interest me.
+          Feel free to explore and read.
+        </p>
+
+        {% if articles %}
+        <div class="writings-catalogue">
+          {% for article in articles %}
+          <div class="writing-item">
+            <div class="writing-content">
+              <h3 class="writing-title">
+                <a
+                  href="{{ url_for('index.show_article', article_id=article.id) }}"
+                >
+                  {{ article.title }}
+                </a>
+              </h3>
+              {% if article.summary %}
+              <p class="writing-summary">{{ article.summary }}</p>
+              {% endif %}
+              <div class="writing-meta">
+                {% if article.created_at %} {% if article.created_at is string
+                %}
+                <span class="writing-date">{{ article.created_at }}</span>
+                {% else %}
+                <span class="writing-date"
+                  >{{ article.created_at.strftime('%B %d, %Y') }}</span
+                >
+                {% endif %} {% endif %}
+                <a
+                  href="{{ url_for('index.show_article', article_id=article.id) }}"
+                  class="read-more"
+                >
+                  Read more →
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <p>No articles yet. Check back soon for new writings!</p>
+        </div>
+        {% endif %}
+
+        <p>
+          <a href="/" class="back-link">← Back to About</a>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      function toggleDropdown() {
+        const dropdown = document.querySelector(".dropdown");
+        dropdown.classList.toggle("show");
+      }
+
+      // Close dropdown when clicking outside
+      window.onclick = function (event) {
+        if (!event.target.matches(".dropdown-btn")) {
+          const dropdowns = document.getElementsByClassName("dropdown");
+          for (let dropdown of dropdowns) {
+            if (dropdown.classList.contains("show")) {
+              dropdown.classList.remove("show");
+            }
+          }
+        }
+      };
+    </script>
+  </body>
+</html>

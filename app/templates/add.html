@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Add New Article - Charlotte</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="navbar container">
+        <a id="author-name" class="alignable pull-left" href="/"
+          >Charlotte Zhu</a
+        >
+        <ul id="navlist" class="alignable pull-right navbar-ul">
+          <li class="alignable pull-left nav-list"><a href="/">About</a> /</li>
+          <li class="alignable pull-left nav-list">
+            <a href="{{ url_for('index.research') }}">Research</a> /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <a
+              href="https://docs.google.com/document/d/1glz4mQ6Plw6i5HLSvEICBq8n1f0msbjSDgCIvIjnX8k/edit?usp=sharing"
+              target="_blank"
+              >CV</a
+            >
+            /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <div class="dropdown">
+              <button class="dropdown-btn" onclick="toggleDropdown()">
+                Funzzies
+              </button>
+              <div class="dropdown-content" id="funzziesDropdown">
+                <a href="{{ url_for('chat.chat') }}">Chat</a>
+                <a href="{{ url_for('index.drawings') }}">Drawings</a>
+                <a href="{{ url_for('index.photos') }}">Photos</a>
+                <a href="{{ url_for('index.writings') }}">Writings</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div style="clear: both"></div>
+      <hr />
+
+      <div class="container content">
+        <div class="form-header">
+          <h1>Add New Article</h1>
+          <p>Create a new article for your writing collection.</p>
+        </div>
+
+        <form method="POST" action="/add">
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              placeholder="Enter article title..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="summary">Summary</label>
+            <input
+              type="text"
+              id="summary"
+              name="summary"
+              placeholder="Brief summary of the article..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="created_at">Created Time</label>
+            <input
+              type="datetime-local"
+              id="created_at"
+              name="created_at"
+              value="{{ now }}"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="content">Content</label>
+            <textarea
+              id="content"
+              name="content"
+              required
+              placeholder="Write your article content here..."
+            ></textarea>
+          </div>
+
+          <div class="submit-section">
+            <button type="submit" class="submit-btn">Publish Article</button>
+          </div>
+        </form>
+
+        <div class="back-section">
+          <a href="{{ url_for('index.index') }}" class="back-link"
+            >← Back to About</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function toggleDropdown() {
+        const dropdown = document.querySelector(".dropdown");
+        dropdown.classList.toggle("show");
+      }
+
+      // Close dropdown when clicking outside
+      window.onclick = function (event) {
+        if (!event.target.matches(".dropdown-btn")) {
+          const dropdowns = document.getElementsByClassName("dropdown");
+          for (let dropdown of dropdowns) {
+            if (dropdown.classList.contains("show")) {
+              dropdown.classList.remove("show");
+            }
+          }
+        }
+      };
+    </script>
+  </body>
+</html>

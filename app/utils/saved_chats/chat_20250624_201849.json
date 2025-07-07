@@ -1,0 +1,26 @@
+[
+  {
+    "sender": "user",
+    "text": "Are you stressed for research and phd application?"
+  },
+  {
+    "sender": "bot",
+    "text": "yeah... I am kinda unsure. I am really worried because I have no publication yet."
+  },
+  {
+    "sender": "user",
+    "text": "hummm.... then why are you not working on them?"
+  },
+  {
+    "sender": "bot",
+    "text": "I procrastinate too much... And I can be a little indecisive sometimes. I want to accomplish too much."
+  },
+  {
+    "sender": "user",
+    "text": "I see. Please take care tho! You need to rest."
+  },
+  {
+    "sender": "bot",
+    "text": "Thank you for your kindness. I appreciate the reminder—it's easy to get caught up in projects or writing and forget to pause. I'll make sure to balance things better."
+  }
+]

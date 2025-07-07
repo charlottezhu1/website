@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{{ project.name }} - Charlotte Zhu</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="keywords" content="projects, portfolio, Charlotte" />
+    <meta name="author" content="Charlotte Zhu" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="navbar container">
+        <a id="author-name" class="alignable pull-left" href="/"
+          >Charlotte Zhu</a
+        >
+        <ul id="navlist" class="alignable pull-right navbar-ul">
+          <li class="alignable pull-left nav-list"><a href="/">About</a> /</li>
+          <li class="alignable pull-left nav-list">
+            <a href="{{ url_for('index.research') }}">Research</a> /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <a href="{{ url_for('index.projects') }}" class="active"
+              >Projects</a
+            >
+            /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <a
+              href="https://docs.google.com/document/d/1glz4mQ6Plw6i5HLSvEICBq8n1f0msbjSDgCIvIjnX8k/edit?usp=sharing"
+              target="_blank"
+              >CV</a
+            >
+            /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <div class="dropdown">
+              <button class="dropdown-btn" onclick="toggleDropdown()">
+                Funzzies
+              </button>
+              <div class="dropdown-content" id="funzziesDropdown">
+                <a href="{{ url_for('chat.chat') }}">Chat</a>
+                <a href="{{ url_for('index.drawings') }}">Drawings</a>
+                <a href="{{ url_for('index.photos') }}">Photos</a>
+                <a href="{{ url_for('index.writings') }}">Writings</a>
+                {% if session.get('dev') %}
+                <a href="{{ url_for('index.phd_tracker') }}">PhD Tracker</a>
+                {% endif %}
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div style="clear: both"></div>
+      <hr />
+
+      <div class="container content">
+        <div class="project-detail">
+          <h1>{{ project.name }}</h1>
+          <div class="project-hero">
+            <img
+              src="{{ project.image_url }}"
+              alt="{{ project.name }}"
+              class="project-detail-image"
+            />
+          </div>
+
+          <div class="project-info">
+            <div class="project-metadata">
+              <p><strong>Timeline:</strong> {{ project.timeline }}</p>
+              <p><strong>Technologies:</strong> {{ project.technologies }}</p>
+              {% if project.demo_url %}
+              <p>
+                <strong>Demo:</strong>
+                <a href="{{ project.demo_url }}" target="_blank">View Demo</a>
+              </p>
+              {% endif %} {% if project.github_url %}
+              <p>
+                <strong>GitHub:</strong>
+                <a href="{{ project.github_url }}" target="_blank"
+                  >View Source</a
+                >
+              </p>
+              {% endif %}
+            </div>
+
+            <div class="project-description">
+              {{ project.description | safe }}
+            </div>
+
+            {% if project.features %}
+            <div class="project-features">
+              <h3>Key Features</h3>
+              <ul>
+                {% for feature in project.features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% endif %} {% if project.images %}
+            <div class="project-gallery">
+              <h3>Gallery</h3>
+              <div class="gallery-grid">
+                {% for image in project.images %}
+                <img
+                  src="{{ image.url }}"
+                  alt="{{ image.caption }}"
+                  class="gallery-image"
+                />
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function toggleDropdown() {
+        const dropdown = document.querySelector(".dropdown");
+        dropdown.classList.toggle("show");
+      }
+
+      window.onclick = function (event) {
+        if (!event.target.matches(".dropdown-btn")) {
+          const dropdowns = document.getElementsByClassName("dropdown");
+          for (let dropdown of dropdowns) {
+            if (dropdown.classList.contains("show")) {
+              dropdown.classList.remove("show");
+            }
+          }
+        }
+      };
+    </script>
+  </body>
+</html>

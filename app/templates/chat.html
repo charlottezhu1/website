@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chat - Charlotte</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="navbar container">
+        <a id="author-name" class="alignable pull-left" href="/"
+          >Charlotte Zhu</a
+        >
+        <ul id="navlist" class="alignable pull-right navbar-ul">
+          <li class="alignable pull-left nav-list"><a href="/">About</a> /</li>
+          <li class="alignable pull-left nav-list">
+            <a href="{{ url_for('index.research') }}">Research</a> /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <a
+              href="https://docs.google.com/document/d/1glz4mQ6Plw6i5HLSvEICBq8n1f0msbjSDgCIvIjnX8k/edit?usp=sharing"
+              target="_blank"
+              >CV</a
+            >
+            /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <div class="dropdown">
+              <button class="dropdown-btn" onclick="toggleDropdown()">
+                Funzzies
+              </button>
+              <div class="dropdown-content" id="funzziesDropdown">
+                <a href="{{ url_for('chat.chat') }}" class="selected">Chat</a>
+                <a href="{{ url_for('index.drawings') }}">Drawings</a>
+                <a href="{{ url_for('index.photos') }}">Photos</a>
+                <a href="{{ url_for('index.writings') }}">Writings</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div style="clear: both"></div>
+      <hr />
+
+      <div class="chat-container">
+        <header class="chat-header">
+          <h2>Chat with Charlotte</h2>
+        </header>
+
+        <div class="chat-layout">
+          <!-- Main Chat Area -->
+          <div class="chat-main">
+            <div class="chat-box" id="chatBox">
+              <div id="chat"></div>
+            </div>
+
+            <div class="input-section">
+              <div class="input-group">
+                <textarea
+                  id="messageInput"
+                  placeholder="Type your message here..."
+                  oninput="autoResize(this)"
+                  class="form-control"
+                  onkeypress="handleKeyPress(event)"
+                ></textarea>
+                <button
+                  id="sendBtn"
+                  onclick="sendMessage()"
+                  class="primary-btn"
+                >
+                  Send
+                </button>
+              </div>
+
+              {% if is_dev %}
+              <div class="action-buttons">
+                <button
+                  id="saveBtn"
+                  onclick="saveConversation()"
+                  class="secondary-btn"
+                >
+                  Save Conversation
+                </button>
+                <button
+                  id="populateBtn"
+                  onclick="populateInitialData()"
+                  class="secondary-btn"
+                >
+                  Populate Initial Data
+                </button>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="chat-sidebar">
+            <div class="sidebar-section">
+              <label for="promptInput" class="sidebar-label">
+                System Prompt
+              </label>
+              <textarea
+                id="promptInput"
+                class="sidebar-textarea"
+                placeholder="Enter system prompt..."
+              >
+You are Charlotte.</textarea
+              >
+            </div>
+
+            <div class="sidebar-section">
+              <label class="sidebar-label">Charlotte's Emotional State</label>
+              <div class="emotional-state-container">
+                <div class="emotion-display">
+                  <span class="emotion-label">Current Emotion:</span>
+                  <span id="currentEmotion" class="emotion-value"
+                    >Loading...</span
+                  >
+                </div>
+                <div class="intensity-display">
+                  <span class="intensity-label">Intensity:</span>
+                  <div class="intensity-bar">
+                    <div id="intensityFill" class="intensity-fill"></div>
+                  </div>
+                  <span id="intensityValue" class="intensity-text">0.0</span>
+                </div>
+                <div class="emotion-emoji">
+                  <span id="emotionEmoji" class="emoji">😊</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Pass the is_dev variable from Flask to JavaScript
+      const isDev = {{ 'true' if is_dev else 'false' }};
+    </script>
+    <script src="{{ url_for('static', filename='chat.js') }}"></script>
+    <script>
+      function toggleDropdown() {
+        const dropdown = document.querySelector(".dropdown");
+        dropdown.classList.toggle("show");
+      }
+
+      // Close dropdown when clicking outside
+      window.onclick = function (event) {
+        if (!event.target.matches(".dropdown-btn")) {
+          const dropdowns = document.getElementsByClassName("dropdown");
+          for (let dropdown of dropdowns) {
+            if (dropdown.classList.contains("show")) {
+              dropdown.classList.remove("show");
+            }
+          }
+        }
+      };
+    </script>
+  </body>
+</html>
