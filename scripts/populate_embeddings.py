@@ -7,26 +7,39 @@ project_root = str(Path(__file__).resolve().parent.parent)
 sys.path.append(project_root)
 
 from app import create_app, supabase_extension
-from openai import OpenAI
-from settings import OPENAI_API_KEY
+from sentence_transformers import SentenceTransformer
 import time
+import threading
 from typing import List, Dict, Any
 import json
 
-# Initialize OpenAI client
-client_openai = OpenAI(api_key=OPENAI_API_KEY, base_url="https://api.openai.com/v1")
+# Global variables for lazy loading
+_embedding_model = None
+_model_lock = threading.Lock()
+
+def get_embedding_model():
+    """Get the embedding model with lazy loading and thread safety"""
+    global _embedding_model
+    if _embedding_model is None:
+        with _model_lock:
+            # Double-check pattern to prevent race conditions
+            if _embedding_model is None:
+                _embedding_model = SentenceTransformer("intfloat/multilingual-e5-base")
+    return _embedding_model
 
 
 def generate_embedding(text: str) -> List[float] | None:
-    """Generate embedding for text using OpenAI's text-embedding-ada-002 model"""
+    """Generate embedding for text using Sentence Transformers intfloat/multilingual-e5-base model"""
     try:
-        # Add a small delay to respect rate limits
-        time.sleep(0.1)
+        # Get model with lazy loading
+        model = get_embedding_model()
+        
+        # E5 models require a "query: " prefix for optimal performance
+        prefixed_text = f"query: {text}"
 
-        response = client_openai.embeddings.create(
-            model="text-embedding-ada-002", input=text, encoding_format="float"
-        )
-        return response.data[0].embedding
+        # Generate embedding using sentence transformers (much faster, no rate limits)
+        embedding = model.encode(prefixed_text, convert_to_tensor=False)
+        return embedding.tolist()
     except Exception as e:
         print(f"Error generating embedding: {e}")
         return None
@@ -43,8 +56,17 @@ def process_batch(items: List[Dict], table_name: str) -> int:
                 text = (
                     f"{item.get('user_message', '')} {item.get('agent_response', '')}"
                 )
-            else:  # user_message table
-                text = item.get("message", "")  # Get the message directly
+            else:  # saved_conversations table
+                # Extract text from conversation_data JSONB array
+                conversation_data = item.get("conversation_data", [])
+                if isinstance(conversation_data, list):
+                    text_parts = []
+                    for msg in conversation_data:
+                        if isinstance(msg, dict):
+                            text_parts.append(msg.get("text", ""))
+                    text = " ".join(text_parts)
+                else:
+                    text = str(conversation_data)
 
             # Generate embedding
             embedding = generate_embedding(text)
@@ -62,8 +84,7 @@ def process_batch(items: List[Dict], table_name: str) -> int:
             updated_count += 1
             print(f"Updated {table_name} item {item['id']} with embedding")
 
-            # Add delay between items
-            time.sleep(0.5)
+            # No delay needed for local Sentence Transformers model
 
         except Exception as e:
             print(f"Error processing {table_name} item {item['id']}: {e}")
@@ -88,8 +109,8 @@ def main():
                 .execute()
             )
 
-            user_messages_response = (
-                supabase_extension.client.table("user_message")
+            saved_conversations_response = (
+                supabase_extension.client.table("saved_conversations")
                 .select("*")
                 .is_("embedding", "null")
                 .execute()
@@ -102,7 +123,7 @@ def main():
                 print(
                     f"\nProcessing {len(memory_response.data)} memory stream items..."
                 )
-                batch_size = 10
+                batch_size = 50  # Larger batch size since local model is faster
                 for i in range(0, len(memory_response.data), batch_size):
                     batch = memory_response.data[i : i + batch_size]
                     updated = process_batch(batch, "memory_stream")
@@ -110,22 +131,22 @@ def main():
                     print(
                         f"Completed batch {i//batch_size + 1} of {(len(memory_response.data) + batch_size - 1)//batch_size}"
                     )
-                    time.sleep(1)  # Delay between batches
+                    # No delay needed for local model
 
-            # Process user messages in batches
-            if user_messages_response.data:
+            # Process saved conversations in batches
+            if saved_conversations_response.data:
                 print(
-                    f"\nProcessing {len(user_messages_response.data)} user messages..."
+                    f"\nProcessing {len(saved_conversations_response.data)} saved conversations..."
                 )
-                batch_size = 10  # Can use regular batch size since messages are simpler
-                for i in range(0, len(user_messages_response.data), batch_size):
-                    batch = user_messages_response.data[i : i + batch_size]
-                    updated = process_batch(batch, "user_message")
+                batch_size = 50  # Larger batch size since local model is faster
+                for i in range(0, len(saved_conversations_response.data), batch_size):
+                    batch = saved_conversations_response.data[i : i + batch_size]
+                    updated = process_batch(batch, "saved_conversations")
                     total_updated += updated
                     print(
-                        f"Completed batch {i//batch_size + 1} of {(len(user_messages_response.data) + batch_size - 1)//batch_size}"
+                        f"Completed batch {i//batch_size + 1} of {(len(saved_conversations_response.data) + batch_size - 1)//batch_size}"
                     )
-                    time.sleep(1)  # Delay between batches
+                    # No delay needed for local model
 
             print(
                 f"\nPopulation complete! Updated {total_updated} items with embeddings"

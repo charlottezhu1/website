@@ -1,40 +1,81 @@
+import os
 import uuid
 from datetime import datetime, timedelta
-from settings import OPENAI_API_KEY
 from typing import List, Dict, Optional, Any
 import numpy as np
+import threading
+from typing import List
 from app import supabase_extension
-from openai import OpenAI
+from sentence_transformers import SentenceTransformer
 
-# Initialize OpenAI client
-client_openai = OpenAI(api_key=OPENAI_API_KEY, base_url="https://api.openai.com/v1")
+# Disable tokenizer parallelism to avoid fork warnings
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+# Global variables for lazy loading
+_embedding_model = None
+_model_lock = threading.Lock()
+
+
+def get_embedding_model():
+    """Get the embedding model with lazy loading and thread safety"""
+    global _embedding_model
+    if _embedding_model is None:
+        with _model_lock:
+            # Double-check pattern to prevent race conditions
+            if _embedding_model is None:
+                _embedding_model = SentenceTransformer("intfloat/multilingual-e5-base")
+    return _embedding_model
 
 
 def generate_embedding(text: str) -> List[float]:
-    """Generate embedding for text using OpenAI's text-embedding-ada-002 model"""
+    """Generate embedding for text using Sentence Transformers intfloat/multilingual-e5-base model"""
     try:
-        response = client_openai.embeddings.create(
-            model="text-embedding-ada-002", input=text, encoding_format="float"
-        )
-        return response.data[0].embedding
+        # Get model with lazy loading
+        model = get_embedding_model()
+
+        # E5 models require a "query: " prefix for optimal performance
+        prefixed_text = f"query: {text}"
+
+        # Generate embedding using sentence transformers
+        embedding = model.encode(prefixed_text, convert_to_tensor=False)
+        return embedding.tolist()
     except Exception as e:
-        print(f"Error generating OpenAI embedding: {e}")
+        print(f"Error generating Sentence Transformer embedding: {e}")
         return []
 
 
 def cosine_similarity(a: List[float], b: List[float]) -> float:
     """Calculate cosine similarity between two vectors"""
-    if not a or not b or len(a) != len(b):
+    import json
+
+    # Handle case where embeddings might be stored as JSON strings
+    if isinstance(a, str):
+        try:
+            a = json.loads(a)
+        except:
+            return 0.0
+    if isinstance(b, str):
+        try:
+            b = json.loads(b)
+        except:
+            return 0.0
+
+    if not a or not b:
         return 0.0
 
-    dot_product = sum(x * y for x, y in zip(a, b))
-    norm_a = sum(x * x for x in a) ** 0.5
-    norm_b = sum(x * x for x in b) ** 0.5
+    a = np.array(a, dtype=np.float32)
+    b = np.array(b, dtype=np.float32)
 
-    if norm_a == 0 or norm_b == 0:
+    if a.shape != b.shape or a.size == 0:
         return 0.0
 
-    return dot_product / (norm_a * norm_b)
+    norm_a = np.linalg.norm(a)
+    norm_b = np.linalg.norm(b)
+
+    if norm_a == 0.0 or norm_b == 0.0:
+        return 0.0
+
+    return float(np.dot(a, b) / (norm_a * norm_b))
 
 
 class ConversationManager:
@@ -536,7 +577,7 @@ class ContextRetriever:
 
                 similarity = cosine_similarity(query_embedding, memory_embedding)
 
-                if similarity > 0.3:  # Threshold for relevance
+                if similarity > 0.5:  # Threshold for relevance
                     memory["similarity_score"] = similarity
                     memories_with_scores.append(memory)
 

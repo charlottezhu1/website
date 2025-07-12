@@ -1,0 +1,9 @@
+# Core dependencies for Charlotte AI Chat Website
+flask
+supabase
+sentence-transformers
+numpy
+
+# Optional dependencies (if needed)
+# torch  # Usually installed automatically with sentence-transformers
+# transformers  # Usually installed automatically with sentence-transformers

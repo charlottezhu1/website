@@ -50,3 +50,5 @@ instance/
 .env.*.local
 
 settings.py
+
+CLAUDE.md

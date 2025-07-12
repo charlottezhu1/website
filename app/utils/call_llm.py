@@ -20,7 +20,8 @@ def deepseek_request(
     max_tokens: int = 1500,
 ) -> dict:
     """System prompt for character definition."""
-    base_prompt = read_txt_file_from_directory()
+    instruction = "You are going to roleplay as Charlotte. Keep your response short, concise, and casual. Follow the content and response style in the appeneded context and extra information. Avoid using dash or emoji."
+    more_info = read_txt_file_from_directory()
 
     # Get relevant context from database
     context_retriever = ContextRetriever()
@@ -28,21 +29,21 @@ def deepseek_request(
     context_prompt = format_context_for_prompt(context)
 
     # Combine prompts
-    system_prompt = base_prompt + "\n\n" + context_prompt + "\n\n" + prompt
+    system_prompt = instruction + "\n\n" + context_prompt + "\n\n" + more_info
 
     # Add emotional state instruction to the prompt
     emotional_instruction = """
     
-IMPORTANT: At the end of your response, include your current emotional state in this exact format:
-[EMOTION: emotion_name]
-[INTENSITY: 0.0-1.0] The higher the intensity, the more intense the emotion.
+    IMPORTANT: At the end of your response, include your current emotional state in this exact format:
+    [EMOTION: emotion_name]
+    [INTENSITY: 0.0-1.0] The higher the intensity, the more intense the emotion.
 
-For example:
-[EMOTION: happy]
-[INTENSITY: 0.8]
+    For example:
+    [EMOTION: happy]
+    [INTENSITY: 0.8]
 
-Valid emotions: nervous, sad, happy, calm, excited, angry, relaxed, fearful, enthusiastic, satisfied, bored, lonely
-"""
+    Valid emotions: nervous, sad, happy, calm, excited, angry, relaxed, fearful, enthusiastic, satisfied, bored, lonely
+    """
 
     final_prompt = system_prompt + emotional_instruction
     print("\n=== DEBUG: FINAL PROMPT ===")
@@ -60,7 +61,7 @@ Valid emotions: nervous, sad, happy, calm, excited, angry, relaxed, fearful, ent
             ],
             stream=False,
             max_tokens=max_tokens,
-            temperature=0.7,
+            temperature=0.1,
         )
 
         # Get the response content
