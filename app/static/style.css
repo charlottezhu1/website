@@ -867,7 +867,7 @@ textarea {
 
 /* ===== EMOTIONAL STATE STYLES ===== */
 .emotional-state-container {
-  background: linear-gradient(135deg, #fae29c 0%, #f0e68c 100%);
+  background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
   border-radius: 8px;
   padding: 15px;
   margin-top: 10px;
@@ -896,6 +896,22 @@ textarea {
   border-radius: 4px;
 }
 
+.emotion-artwork {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.emotion-artwork img {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.emotion-value {
+  font-weight: 500;
+  margin-left: 8px;
+}
+
 .intensity-display {
   display: flex;
   align-items: center;
@@ -921,7 +937,7 @@ textarea {
 
 .intensity-fill {
   height: 100%;
-  background: linear-gradient(90deg, #d4a017 0%, #b8860b 100%);
+  background: linear-gradient(90deg, #fae29c 0%, #f0e68c 100%);
   border-radius: 4px;
   transition: width 0.3s ease;
   width: 0%;
@@ -957,6 +973,7 @@ textarea {
   flex-direction: column;
   margin-bottom: 15px;
   border-left: 3px solid #d4a017;
+  scroll-behavior: smooth;
 }
 
 #chat {
@@ -982,43 +999,18 @@ textarea {
 }
 
 /* ===== MESSAGE STYLES ===== */
-.message-container {
-  display: flex;
-  align-items: flex-start;
-  margin: 5px 0;
-}
-
-.message-container:first-child {
-  margin-top: 0;
-}
-
 .message {
-  margin: 5px 0;
-  padding: 10px;
-  border-radius: 5px;
-  max-width: 75%;
+  max-width: 80%;
   word-wrap: break-word;
+  white-space: pre-wrap;
+  margin: 5px 10px;
+  padding: 10px 15px;
+  border-radius: 15px;
+  line-height: 1.4;
 }
 
-.message-textarea {
-  width: 75%;
-  margin: 5px 0;
-  padding: 10px;
-  border-radius: 5px;
-  font-family: inherit;
-  font-size: 1rem;
-  resize: none;
-  min-height: 60px;
-  max-height: none;
-  word-wrap: break-word;
-  box-sizing: border-box;
-  border: 1px solid #ddd;
-  background-color: #fff;
-}
-
-.user {
+.message.user {
   background-color: #fae29c;
-  text-align: right;
   align-self: flex-end;
   border-top-right-radius: 0;
   border-left: 3px solid #d4a017;
@@ -1026,14 +1018,18 @@ textarea {
   font-weight: 500;
 }
 
-.bot {
+.message.bot {
   background-color: #f8f9fa;
-  text-align: left;
   align-self: flex-start;
   border-top-left-radius: 0;
   border-left: 3px solid #6c757d;
   color: #333;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.message-container {
+  display: flex;
+  width: 100%;
 }
 
 .user-container {
@@ -1042,6 +1038,45 @@ textarea {
 
 .bot-container {
   justify-content: flex-start;
+}
+
+/* Fix textarea expanding */
+.message-textarea {
+  width: 100%;
+  max-width: 80%;
+  resize: vertical;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  margin: 5px 10px;
+  padding: 10px 15px;
+  border-radius: 15px;
+  line-height: 1.4;
+  font-family: inherit;
+  font-size: inherit;
+  background-color: #fae29c;
+  border: none;
+  border-left: 3px solid #d4a017;
+  color: #444;
+  font-weight: 500;
+}
+
+#chat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.chat-box {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  overflow-y: auto;
+  background: white;
+  border-left: 3px solid #d4a017;
 }
 
 /* ===== ARTICLE STYLES ===== */
@@ -1670,4 +1705,58 @@ textarea {
   .gallery-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Loading animation styles */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  background-color: #90959d;
+  border-radius: 50%;
+  animation: bounce 1.5s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Message transition effect */
+.message.bot {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.message.bot.loading {
+  min-width: 60px;
+  background-color: #f0f0f0;
+}
+
+/* Ensure the chat container has smooth scrolling */
+.chat-box {
+  scroll-behavior: smooth;
 }

@@ -1,9 +1,24 @@
--- Add embedding column to memory_stream table
-ALTER TABLE memory_stream 
-ADD COLUMN context_embedding vector(1536);
+-- Add embedding column to saved_conversations table
+ALTER TABLE saved_conversations
+ADD COLUMN IF NOT EXISTS embedding vector(1536);
 
--- Add index for vector similarity search (if using pgvector)
--- CREATE INDEX ON memory_stream USING ivfflat (context_embedding vector_cosine_ops);
+-- Add embedding column to memory_stream table
+ALTER TABLE memory_stream
+ADD COLUMN IF NOT EXISTS embedding vector(1536);
+
+-- Create an index for similarity search
+CREATE INDEX IF NOT EXISTS saved_conversations_embedding_idx 
+ON saved_conversations 
+USING ivfflat (embedding vector_cosine_ops)
+WITH (lists = 100);
+
+CREATE INDEX IF NOT EXISTS memory_stream_embedding_idx 
+ON memory_stream 
+USING ivfflat (embedding vector_cosine_ops)
+WITH (lists = 100);
+
+-- Enable the vector extension if not already enabled
+CREATE EXTENSION IF NOT EXISTS vector;
 
 -- Update existing rows to have empty embedding arrays
 UPDATE memory_stream 

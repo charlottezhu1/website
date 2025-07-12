@@ -1,8 +1,40 @@
 import uuid
 from datetime import datetime, timedelta
+from settings import OPENAI_API_KEY
 from typing import List, Dict, Optional, Any
 import numpy as np
 from app import supabase_extension
+from openai import OpenAI
+
+# Initialize OpenAI client
+client_openai = OpenAI(api_key=OPENAI_API_KEY, base_url="https://api.openai.com/v1")
+
+
+def generate_embedding(text: str) -> List[float]:
+    """Generate embedding for text using OpenAI's text-embedding-ada-002 model"""
+    try:
+        response = client_openai.embeddings.create(
+            model="text-embedding-ada-002", input=text, encoding_format="float"
+        )
+        return response.data[0].embedding
+    except Exception as e:
+        print(f"Error generating OpenAI embedding: {e}")
+        return []
+
+
+def cosine_similarity(a: List[float], b: List[float]) -> float:
+    """Calculate cosine similarity between two vectors"""
+    if not a or not b or len(a) != len(b):
+        return 0.0
+
+    dot_product = sum(x * y for x, y in zip(a, b))
+    norm_a = sum(x * x for x in a) ** 0.5
+    norm_b = sum(x * x for x in b) ** 0.5
+
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+
+    return dot_product / (norm_a * norm_b)
 
 
 class ConversationManager:
@@ -19,7 +51,7 @@ class ConversationManager:
         description: Optional[str] = None,
         quality_score: float = 0.8,
     ) -> str:
-        """Save a conversation to the database"""
+        """Save a conversation to the database with embeddings"""
         try:
             # Analyze conversation for type and topics
             conversation_type = self._classify_conversation(conversation_data)
@@ -29,6 +61,15 @@ class ConversationManager:
             # Generate title if not provided
             if not title:
                 title = f"Conversation {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+
+            # Generate embedding for the entire conversation
+            conv_text = " ".join(
+                [
+                    f"{msg.get('text', '')} {msg.get('user_message', '')} {msg.get('agent_response', '')}"
+                    for msg in conversation_data
+                ]
+            )
+            embedding = generate_embedding(conv_text)
 
             # Insert into database
             response = (
@@ -44,6 +85,7 @@ class ConversationManager:
                         "topics": topics,
                         "emotional_arc": emotional_arc,
                         "usage_count": 0,
+                        "embedding": embedding,
                     }
                 )
                 .execute()
@@ -61,51 +103,66 @@ class ConversationManager:
     def get_relevant_conversations(
         self, user_message: str, limit: int = 3
     ) -> List[Dict]:
-        """Retrieve relevant conversations based on user message"""
+        """Retrieve relevant conversations based on embedding similarity"""
         try:
-            # Get conversations by topic similarity (simple keyword matching for now)
-            # TODO: Implement proper semantic search with embeddings
-            keywords = self._extract_keywords(user_message.lower())
+            print("\n=== DEBUG: SEARCHING WITH EMBEDDINGS ===")
 
-            # Get conversations that match keywords
+            # Generate embedding for user message
+            query_embedding = generate_embedding(user_message)
+
+            # Get all conversations
             response = (
                 supabase_extension.client.table(self.saved_conversations_table)
                 .select("*")
                 .eq("is_active", True)
-                .gte("quality_score", 0.6)
-                .order("quality_score", desc=True)
-                .limit(limit * 2)  # Get more to filter
                 .execute()
             )
 
             if not response.data:
+                print("No conversations found in database")
                 return []
 
-            # Filter by keyword relevance
-            relevant_conversations = []
+            # Calculate similarities and rank conversations
+            conversations_with_scores = []
             for conv in response.data:
-                conv_topics = [topic.lower() for topic in conv.get("topics", [])]
-                conv_text = " ".join(
-                    [msg.get("text", "") for msg in conv.get("conversation_data", [])]
-                ).lower()
+                conv_embedding = conv.get("embedding")
+                if not conv_embedding:
+                    continue
 
-                # Calculate relevance score
-                relevance_score = 0
-                for keyword in keywords:
-                    if keyword in conv_text or any(
-                        keyword in topic for topic in conv_topics
-                    ):
-                        relevance_score += 1
+                # Calculate similarity score
+                similarity = cosine_similarity(query_embedding, conv_embedding)
 
-                if relevance_score > 0:
-                    conv["relevance_score"] = relevance_score
-                    relevant_conversations.append(conv)
+                # Apply quality and recency boosts
+                quality_boost = float(conv.get("quality_score", 0.5))
+
+                # Check recency
+                messages = conv.get("conversation_data", [])
+                recency_boost = 1.0
+                if messages and len(messages) > 0:
+                    last_msg = messages[-1]
+                    if "timestamp" in last_msg:
+                        try:
+                            last_time = datetime.fromisoformat(last_msg["timestamp"])
+                            time_diff = datetime.now() - last_time
+                            if time_diff.days < 1:  # Within last 24 hours
+                                recency_boost = 1.5
+                        except (ValueError, TypeError):
+                            pass
+
+                # Calculate final score
+                final_score = similarity * (1 + quality_boost) * recency_boost
+
+                if final_score > 0:
+                    conv["relevance_score"] = final_score
+                    conversations_with_scores.append(conv)
 
             # Sort by relevance and return top results
-            relevant_conversations.sort(
+            conversations_with_scores.sort(
                 key=lambda x: x["relevance_score"], reverse=True
             )
-            return relevant_conversations[:limit]
+
+            print(f"Found {len(conversations_with_scores)} relevant conversations")
+            return conversations_with_scores[:limit]
 
         except Exception as e:
             print(f"Error retrieving relevant conversations: {e}")
@@ -398,16 +455,25 @@ class ContextRetriever:
     ) -> Dict[str, Any]:
         """Retrieve relevant context based on user message"""
         try:
+            print("\n=== DEBUG: RETRIEVING CONTEXT ===")
+            print("User message:", user_message)
+
             # Get recent conversations (last 24 hours)
             recent_context = self._get_recent_context(limit)
+            print("Recent context count:", len(recent_context))
 
-            # Get relevant historical context (if you implement embeddings)
+            # Get relevant historical context based on embedding similarity
             historical_context = self._get_historical_context(user_message, limit)
+            print("Historical context count:", len(historical_context))
+
+            # Generate conversation summary
+            summary = self._generate_summary(recent_context + historical_context)
+            print("Generated summary:", summary)
 
             return {
                 "recent_context": recent_context,
                 "historical_context": historical_context,
-                "conversation_summary": self._generate_summary(recent_context),
+                "conversation_summary": summary,
             }
 
         except Exception as e:
@@ -431,27 +497,143 @@ class ContextRetriever:
                 .execute()
             )
 
+            print("\n=== DEBUG: RECENT CONTEXT ===")
+            print(f"Found {len(response.data)} recent items")
             return response.data
         except Exception as e:
             print(f"Error getting recent context: {e}")
             return []
 
     def _get_historical_context(self, user_message: str, limit: int) -> List[Dict]:
-        """Get historically relevant context (placeholder for embedding search)"""
-        # TODO: Implement embedding-based similarity search
-        return []
+        """Get historically relevant context based on embedding similarity"""
+        try:
+            print("\n=== DEBUG: HISTORICAL CONTEXT SEARCH ===")
 
-    def _generate_summary(self, context: List[Dict]) -> str:
-        """Generate a summary of recent conversations"""
-        if not context:
+            # Generate embedding for user message
+            query_embedding = generate_embedding(user_message)
+
+            # Get all memories
+            response = (
+                supabase_extension.client.table(self.memory_table).select("*").execute()
+            )
+
+            if not response.data:
+                return []
+
+            # Calculate similarities and rank memories
+            memories_with_scores = []
+            for memory in response.data:
+                memory_text = f"{memory.get('user_message', '')} {memory.get('agent_response', '')}"
+                memory_embedding = memory.get("embedding")
+
+                if not memory_embedding:
+                    # Generate embedding if not present
+                    memory_embedding = generate_embedding(memory_text)
+                    # Update memory with embedding
+                    supabase_extension.client.table(self.memory_table).update(
+                        {"embedding": memory_embedding}
+                    ).eq("id", memory["id"]).execute()
+
+                similarity = cosine_similarity(query_embedding, memory_embedding)
+
+                if similarity > 0.3:  # Threshold for relevance
+                    memory["similarity_score"] = similarity
+                    memories_with_scores.append(memory)
+
+            # Sort by similarity and return top results
+            memories_with_scores.sort(key=lambda x: x["similarity_score"], reverse=True)
+
+            print(f"Found {len(memories_with_scores)} relevant historical items")
+            return memories_with_scores[:limit]
+
+        except Exception as e:
+            print(f"Error getting historical context: {e}")
+            return []
+
+    def _extract_keywords(self, text: str) -> List[str]:
+        """Extract meaningful keywords from text"""
+        # Remove common stop words
+        stop_words = {
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "but",
+            "in",
+            "on",
+            "at",
+            "to",
+            "for",
+            "of",
+            "with",
+            "by",
+            "is",
+            "are",
+            "was",
+            "were",
+            "be",
+            "been",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "will",
+            "would",
+            "could",
+            "should",
+            "may",
+            "might",
+            "can",
+            "this",
+            "that",
+            "these",
+            "those",
+            "i",
+            "you",
+            "he",
+            "she",
+            "it",
+            "we",
+            "they",
+            "me",
+            "him",
+            "her",
+            "us",
+            "them",
+        }
+
+        # Split into words and filter
+        words = text.split()
+        keywords = [
+            word for word in words if word.lower() not in stop_words and len(word) > 2
+        ]
+
+        return keywords[:5]  # Limit to top 5 keywords
+
+    def _generate_summary(self, context_items: List[Dict]) -> str:
+        """Generate a summary of the context"""
+        if not context_items:
             return ""
 
-        topics = []
-        for item in context:
+        # Extract topics and themes
+        topics = set()
+        for item in context_items:
             if item.get("conversation_topic"):
-                topics.append(item["conversation_topic"])
+                topics.add(item["conversation_topic"])
 
-        return f"Recent topics: {', '.join(set(topics))}" if topics else ""
+            # Extract potential topics from content
+            content = f"{item.get('user_message', '')} {item.get('agent_response', '')}"
+            keywords = self._extract_keywords(content.lower())
+            topics.update(keywords)
+
+        # Format summary
+        topics_list = list(topics)[:3]  # Take top 3 topics
+        if topics_list:
+            return f"Previous discussions about: {', '.join(topics_list)}"
+        return ""
 
 
 class SpeechStyleRetriever:
@@ -741,10 +923,13 @@ def format_context_for_prompt(context: Dict[str, Any]) -> str:
         context_parts.append("Recent conversation context:")
         for item in recent_context[-3:]:  # Last 3 items
             if isinstance(item, dict):
-                content = item.get("content", "")
-                timestamp = item.get("timestamp", "")
-                if content:
-                    context_parts.append(f"- {content}")
+                user_msg = item.get("user_message", "")
+                agent_msg = item.get("agent_response", "")
+                if user_msg or agent_msg:
+                    if user_msg:
+                        context_parts.append(f"User: {user_msg}")
+                    if agent_msg:
+                        context_parts.append(f"Assistant: {agent_msg}")
         context_parts.append("")
 
     # Add historical context if available
@@ -753,13 +938,17 @@ def format_context_for_prompt(context: Dict[str, Any]) -> str:
         context_parts.append("Relevant historical context:")
         for item in historical_context[:3]:  # First 3 items
             if isinstance(item, dict):
-                content = item.get("content", "")
-                if content:
-                    context_parts.append(f"- {content}")
+                user_msg = item.get("user_message", "")
+                agent_msg = item.get("agent_response", "")
+                if user_msg or agent_msg:
+                    if user_msg:
+                        context_parts.append(f"User: {user_msg}")
+                    if agent_msg:
+                        context_parts.append(f"Assistant: {agent_msg}")
         context_parts.append("")
 
     # Add summary if available
-    summary = context.get("summary", "")
+    summary = context.get("conversation_summary", "")  # Updated key name
     if summary:
         context_parts.append(f"Context summary: {summary}")
         context_parts.append("")
@@ -948,57 +1137,70 @@ def analyze_conversation_for_save(conversation_data: List[Dict]) -> Dict[str, An
         }
 
 
-def generate_embedding(text: str) -> List[float]:
-    """Generate embedding for text using a simple hash-based approach"""
-    # This is a placeholder implementation
-    # In a real application, you would use a proper embedding model
-    import hashlib
-
-    # Create a simple hash-based embedding
-    hash_obj = hashlib.md5(text.encode())
-    hash_hex = hash_obj.hexdigest()
-
-    # Convert hex to list of floats (simplified embedding)
-    embedding = []
-    for i in range(0, len(hash_hex), 2):
-        if len(embedding) < 384:  # Standard embedding size
-            hex_pair = hash_hex[i : i + 2]
-            embedding.append(float(int(hex_pair, 16)) / 255.0)
-
-    # Pad or truncate to 384 dimensions
-    while len(embedding) < 384:
-        embedding.append(0.0)
-
-    return embedding[:384]
-
-
 def populate_embeddings_for_existing_memories():
     """Populate embeddings for existing memories in the database"""
     try:
-        # Get all memories without embeddings
-        response = (
-            supabase_extension.client.table("memory_stream").select("*").execute()
+        print("\n=== POPULATING EMBEDDINGS FOR EXISTING MEMORIES ===")
+
+        # Get all memories without embeddings from both tables
+        memory_response = (
+            supabase_extension.client.table("memory_stream")
+            .select("*")
+            .is_("embedding", "null")
+            .execute()
         )
 
-        if not response.data:
-            print("No memories found to populate embeddings")
-            return
+        conversations_response = (
+            supabase_extension.client.table("saved_conversations")
+            .select("*")
+            .is_("embedding", "null")
+            .execute()
+        )
 
         updated_count = 0
-        for memory in response.data:
-            if not memory.get("context_embedding"):
+
+        # Update memory_stream embeddings
+        for memory in memory_response.data:
+            try:
                 # Generate embedding for the conversation context
-                context_text = f"{memory.get('user_message', '')} {memory.get('agent_response', '')}"
-                embedding = generate_embedding(context_text)
+                memory_text = f"{memory.get('user_message', '')} {memory.get('agent_response', '')}"
+                embedding = generate_embedding(memory_text)
 
                 # Update the memory with the embedding
                 supabase_extension.client.table("memory_stream").update(
-                    {"context_embedding": embedding}
+                    {"embedding": embedding}
                 ).eq("id", memory["id"]).execute()
 
                 updated_count += 1
+                print(f"Updated memory {memory['id']} with embedding")
+            except Exception as e:
+                print(f"Error updating memory {memory['id']}: {e}")
+                continue
 
-        print(f"Populated embeddings for {updated_count} memories")
+        # Update saved_conversations embeddings
+        for conv in conversations_response.data:
+            try:
+                # Generate embedding for the entire conversation
+                conv_text = " ".join(
+                    [
+                        f"{msg.get('text', '')} {msg.get('user_message', '')} {msg.get('agent_response', '')}"
+                        for msg in conv.get("conversation_data", [])
+                    ]
+                )
+                embedding = generate_embedding(conv_text)
+
+                # Update the conversation with the embedding
+                supabase_extension.client.table("saved_conversations").update(
+                    {"embedding": embedding}
+                ).eq("id", conv["id"]).execute()
+
+                updated_count += 1
+                print(f"Updated conversation {conv['id']} with embedding")
+            except Exception as e:
+                print(f"Error updating conversation {conv['id']}: {e}")
+                continue
+
+        print(f"\nPopulated embeddings for {updated_count} items")
 
     except Exception as e:
         print(f"Error populating embeddings: {e}")
@@ -1150,7 +1352,6 @@ def _analyze_conversation_tone(conversation_data: List[Dict]) -> str:
         "amazing",
         "love",
         "enjoy",
-        "good",
     ]
     negative_words = [
         "sad",
