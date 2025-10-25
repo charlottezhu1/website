@@ -490,11 +490,109 @@ class ContextRetriever:
 
     def __init__(self):
         self.memory_table = "memory_stream"
+        self.conversations_table = "saved_conversations"
+
+    def retrieve_relevant_conversation(
+        self, user_message: str, limit: int = 3
+    ) -> Dict[str, Any]:
+        """Retrieve relevant conversation (multiple turn conversation with longer context / length) based on user message"""
+        try:
+            # Get recent conversations (last 24 hours)
+            recent_conversations = self._get_recent_conversations(limit)
+            print("Recent context count:", len(recent_conversations))
+
+            # Get relevant historical context based on embedding similarity
+            historical_conversations = self._get_historical_conversations(
+                user_message, limit
+            )
+            print("Historical context count:", len(historical_conversations))
+
+            return {
+                "recent_conversations": recent_conversations,
+                "historical_conversations": historical_conversations,
+            }
+
+        except Exception as e:
+            print(f"Error retrieving relevant conversation: {e}")
+            return {
+                "recent_conversations": [],
+                "historical_conversations": [],
+            }
+
+    def _get_recent_conversations(self, limit: int) -> List[Dict]:
+        """Get recent relevant conversations"""
+        try:
+            yesterday = datetime.now() - timedelta(days=1)
+            response = (
+                supabase_extension.client.table(self.conversations_table)
+                .select("*")
+                .gte("created_at", yesterday.isoformat())
+                .order("created_at", desc=True)
+                .limit(limit)
+                .execute()
+            )
+
+            print("\n=== DEBUG: RECENT CONTEXT ===")
+            print(f"Found {len(response.data)} recent items")
+            return response.data
+        except Exception as e:
+            print(f"Error getting recent context: {e}")
+            return []
+
+    def _get_historical_conversations(
+        self, user_message: str, limit: int
+    ) -> List[Dict]:
+        """Get historically relevant context based on embedding similarity"""
+        try:
+            print("\n=== DEBUG: HISTORICAL CONTEXT SEARCH ===")
+
+            # Generate embedding for user message
+            query_embedding = generate_embedding(user_message)
+
+            # Get all memories
+            conversations = (
+                supabase_extension.client.table(self.conversations_table)
+                .select("*")
+                .execute()
+            )
+
+            if not conversations.data:
+                return []
+
+            # Calculate similarities and rank memories
+            memories_with_scores = []
+            for memory in conversations.data:
+                conversation_data = memory.get("conversation_data", [])
+                memory_embedding = memory.get("embedding")
+
+                if not memory_embedding:
+                    # Generate embedding if not present
+                    memory_embedding = generate_embedding(conversation_data)
+                    # Update memory with embedding
+                    supabase_extension.client.table(self.conversations_table).update(
+                        {"embedding": memory_embedding}
+                    ).eq("id", memory["id"]).execute()
+
+                similarity = cosine_similarity(query_embedding, memory_embedding)
+
+                if similarity > 0.5:  # Threshold for relevance
+                    memory["similarity_score"] = similarity
+                    memories_with_scores.append(memory)
+
+            # Sort by similarity and return top results
+            memories_with_scores.sort(key=lambda x: x["similarity_score"], reverse=True)
+
+            print(f"Found {len(memories_with_scores)} relevant historical items")
+            return memories_with_scores[:limit]
+
+        except Exception as e:
+            print(f"Error getting historical context: {e}")
+            return []
 
     def retrieve_relevant_context(
         self, user_message: str, limit: int = 5
     ) -> Dict[str, Any]:
-        """Retrieve relevant context based on user message"""
+        """Retrieve relevant context (single conversation back and forth) based on user message"""
         try:
             print("\n=== DEBUG: RETRIEVING CONTEXT ===")
             print("User message:", user_message)
@@ -985,7 +1083,7 @@ def format_context_for_prompt(context: Dict[str, Any]) -> str:
                     if user_msg:
                         context_parts.append(f"User: {user_msg}")
                     if agent_msg:
-                        context_parts.append(f"Assistant: {agent_msg}")
+                        context_parts.append(f"Charlotte: {agent_msg}")
         context_parts.append("")
 
     # Add summary if available

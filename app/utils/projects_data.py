@@ -6,7 +6,7 @@ PROJECTS = [
     {
         "id": 1,
         "name": "RendezViewz",
-        "short_description": "A collaborative watch party platform that enhances social viewing experiences",
+        "short_description": "A social platform for media consumption.",
         "description": """
         <p>RendezViewz is a platform that transforms how people watch content together online. 
         It features real-time synchronization, chat, reactions, and interactive elements that make remote viewing feel more personal and engaging.</p>

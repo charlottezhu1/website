@@ -29,18 +29,12 @@
         >
         <ul id="navlist" class="alignable pull-right navbar-ul">
           <li class="alignable pull-left nav-list"><a href="/">About</a> /</li>
-          <li class="alignable pull-left nav-list">
-            <a href="{{ url_for('index.research') }}">Research</a> /
-          </li>
+          
           <li class="alignable pull-left nav-list">
             <a href="{{ url_for('index.projects') }}">Projects</a> /
           </li>
           <li class="alignable pull-left nav-list">
-            <a
-              href="https://docs.google.com/document/d/1glz4mQ6Plw6i5HLSvEICBq8n1f0msbjSDgCIvIjnX8k/edit?usp=sharing"
-              target="_blank"
-              >CV</a
-            >
+            <a href="../static/files/CV_Xuyang_Zhu.pdf" target="_blank">CV</a>
             /
           </li>
           <li class="alignable pull-left nav-list">
@@ -64,43 +58,175 @@
       <div style="clear: both"></div>
       <hr />
 
+      <!-- MAIN CONTENT SECTION - Two-column layout: bio left, projects right -->
       <div class="container content">
-        <p>
-          <img
-            class="profile-picture"
-            src="https://dgcfnvaratrfzwofqohg.supabase.co/storage/v1/object/public/GalleryArt/character/charlotte.JPG"
-            alt="Charlotte"
-          />
-        </p>
+        <!-- LEFT COLUMN: Bio and About Information -->
+        <div class="content-left">
+          <!-- Profile Image and Introduction -->
+          <p>
+            <img
+              class="profile-picture"
+              src="https://dgcfnvaratrfzwofqohg.supabase.co/storage/v1/object/public/GalleryArt/character/charlotte.JPG"
+              alt="Charlotte"
+            /> </br />
+            I'm Charlotte, current MS student in Computer Science (HCI
+            track) working in
+            <a href="https://hci.stanford.edu/" target="_blank"
+              >Stanford HCI group</a
+            >, advised by
+            <a href="https://hci.stanford.edu/msb/" target="_blank"
+              >Prof. Michael Bernstein</a
+            >. </p>
+            <p>
+            My research interests lie in designing and building  <a >interactive systems </a> that understand and simulate 
+            <a >human emotional experiences</a>, to support <a >human agency</a> and enhance <a> well-being </a>in digital interactions.
+          </p>
 
-        <p>
-          I'm Charlotte, current Master student in Computer Science (HCI track)
-          working in
-          <a href="https://hci.stanford.edu/" target="_blank"
-            >Stanford HCI group</a
-          >, advised by
-          <a href="https://hci.stanford.edu/msb/" target="_blank"
-            >Prof. Michael Bernstein</a
-          >. My research interest lies on understanding how technology can
-          enhance human emotional experiences and creating meaningful
-          interactions between humans and AI systems.
-        </p>
+          <!-- Background Information -->
+          <p>
+            During my undergraduate study at Stanford, I majored in Symbolic Systems (Human-Centered AI track) and East
+            Asian Studies. I write and draw frequently in my free time. 
+          </p>
 
-        <p>
-          I'm passionate about designing system that foster positive behavioral
-          change on online platforms. This website serves as a platform for my
-          research, design and development projects, and other fun stuffs.
-        </p>
+          <!-- Contact Section -->
+          <div class="contact-block">
+            <h4 class="section-title">Research</h4>
+            
 
-        <h3 id="projects">Projects</h3>
-        <ul>
-          <li><strong>RendezViewz:</strong> Life of a Watch Party</li>
-          <li><strong>Vera:</strong> Warning system for LLM usage</li>
-          <li><strong>LoveSims:</strong> Love simulation</li>
-        </ul>
+          <ul class="research-list">
+            <li class="research-item">
+              <a href="#" target="_blank">
+                Modeling Experienced Emotions on Social Media via Emotional Impact Prediction
+              </a>
+              <br />
+              <span class="detail">Zhu, X., Wang, Y.-C., Piccardi, T., Tsai, J., Saveski, M., & Bernstein, M. S.</span>
+              <br />
+              <span class="detail"><i>ICWSM '26 (under review)</i></span>
+              <br />
+            </li>
 
-        <h3 id="contact">Fun Facts</h3>
-        <p>I write and publish fanfictions. I also draw and do photography.</p>
+            <li class="research-item">
+              <a href="#" target="_blank">
+                Investigating the impact of literacy on young people's attitudes and behaviors in human-LLM interactions
+              </a>
+              <br />
+              <span class="detail">ElKattan, A., Ibrahim, L., & Zhu, X.</span>
+              <br />
+              <span class="detail"><i>CHI '26 (under review)</i></span>
+              <br />
+            </li>
+
+            <li class="research-item">
+              <a href="#" target="_blank">
+                Social Media Feed Elicitation
+              </a>
+              <br />
+              <span class="detail">Popowski, L., Wu, X., Zhu, X., Piccardi, T., & Bernstein, M. S.</span>
+              <br />
+              <span class="detail"><i>CHI '26 (under review)</i></span>
+              <br />
+            </li>
+            <li class="research-item">
+              <a href="https://doi.org/10.1145/3706599.3720011" target="_blank">
+                LoveSims: Exploring "what-if" scenarios for relationship insights
+                and compatibility
+              </a>
+              <br />
+              <span class="detail">Larrea, M.*, Zhang, X.*, & Zhu, X.*</span>
+              <br />
+              <span class="detail"><i>
+                  CHI EA '25</i
+                ></span>
+              <br />
+            </li>
+
+            <li class="research-item">
+              <a href="#" target="_blank">
+                Enhancing critical thinking with AI: A tailored warning system for
+                RAG models
+              </a>
+              <br />
+              <span class="detail">Zhu, X.</span>
+              <br />
+              <span class="detail"><i
+                  >CHI '25, Human-AI Interaction for Augmented Reasoning Workshop</i
+                ></span>
+              <br />
+              
+            </li>
+
+            <li class="research-item">
+              <a href="#" target="_blank">
+                Implied vs. expressed: Understanding the impact of social media
+                posts on users' emotional experience with LLM predictions
+              </a>
+              <br />
+              <span class="detail">Zhu, X.</span>
+              <br />
+              <span class="detail"><i
+                  >CHI '25, Affective Computing Workshop</i
+                ></span>
+              <br />
+              
+            </li>
+            <p class="highlight">* denotes equal contribution.</p>
+            
+          </div>
+          <div class="contact-block">
+            <h4 class="section-title">Contact</h4>
+            <p>
+              Have a chat with the 
+              <a href="/chat">Digital Charlotte</a>! 
+              To reach the human Charlotte, email me at
+              <a href="">xuyang1@stanford.edu</a>.
+            </p>
+            
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Recent Projects -->
+        <aside
+          class="content-right recent-projects"
+          aria-label="recent projects"
+        >
+          <h4 class="section-title">Recent Projects</h4>
+
+          <!-- Project Thumbnail 1 -->
+          <a class="project-thumb" href="#" title="Project 1">
+            <img
+              src="../static/images/emotion_prediction/teaser.png"
+              alt="project 1"
+            />
+          </a>
+          <div class="project-links">
+            <a href="#">[Slides]</a>
+          </div>
+
+          <!-- Project Thumbnail 2 -->
+          <a class="project-thumb" href="#" title="Project 2">
+            <img
+              src="../static/images/loveSims/lovesims_intro.png"
+              alt="project 2"
+            />
+          </a>
+          <div class="project-links">
+            <a href="#">[Slides]</a>
+            <a href="#">[Poster]</a>
+          </div>
+
+          <!-- Project Thumbnail 3 -->
+          <a class="project-thumb" href="#" title="Project 3">
+            <img
+              src="../static/images/vera/vera.png"
+              alt="project 3"
+            />
+          </a>
+          <div class="project-links">
+            <a href="#">[Slides]</a>
+            <a href="#">[Poster]</a>
+          </div>
+        </aside>
       </div>
     </div>
 

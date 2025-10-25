@@ -33,17 +33,13 @@
         <ul id="navlist" class="alignable pull-right navbar-ul">
           <li class="alignable pull-left nav-list"><a href="/">About</a> /</li>
           <li class="alignable pull-left nav-list">
-            <a href="{{ url_for('index.research') }}" class="selected"
-              >Research</a
-            >
-            /
+            <a href="{{ url_for('index.research') }}">Research</a> /
           </li>
           <li class="alignable pull-left nav-list">
-            <a
-              href="https://docs.google.com/document/d/1glz4mQ6Plw6i5HLSvEICBq8n1f0msbjSDgCIvIjnX8k/edit?usp=sharing"
-              target="_blank"
-              >CV</a
-            >
+            <a href="{{ url_for('index.projects') }}">Projects</a> /
+          </li>
+          <li class="alignable pull-left nav-list">
+            <a href="../static/files/CV_Xuyang_Zhu.pdf" target="_blank">CV</a>
             /
           </li>
           <li class="alignable pull-left nav-list">
@@ -56,6 +52,9 @@
                 <a href="{{ url_for('index.drawings') }}">Drawings</a>
                 <a href="{{ url_for('index.photos') }}">Photos</a>
                 <a href="{{ url_for('index.writings') }}">Writings</a>
+                {% if session.get('dev') %}
+                <a href="{{ url_for('index.phd_tracker') }}">PhD Tracker</a>
+                {% endif %}
               </div>
             </div>
           </li>
@@ -63,84 +62,65 @@
       </div>
       <div style="clear: both"></div>
       <hr />
+      <h1>Publications</h1>
 
-      <div class="container content">
-        <h1>Research</h1>
+      <p class="highlight">* denotes equal contribution.</p>
 
-        <p class="highlight">* denotes equal contribution.</p>
+      <ul class="research-list">
+        <li class="research-item">
+          <span class="publication-title">
+            LoveSims: Exploring "what-if" scenarios for relationship insights
+            and compatibility
+          </span>
+          <br />
+          <span class="authors">Larrea, M.*, Zhang, X.*, & <span class="author-highlight">Zhu, X.*</span></span>
+          <br />
+          <strong
+            ><i
+              >Extended abstracts of the CHI Conference on Human Factors in
+              Computing Systems (CHI EA '25)</i
+            ></strong
+          >
+          <br />
+          <span class="year">2025</span>
+        </li>
 
-        <h3>Conference Papers</h3>
-        <ul class="research-list">
-          <li class="research-item">
-            <a href="https://doi.org/10.1145/3706599.3720011" target="_blank">
-              LoveSims: Exploring "what-if" scenarios for relationship insights
-              and compatibility
-            </a>
-            <br />
-            Larrea, M.*, Zhang, X.*, & Zhu, X.*
-            <br />
-            <strong
-              ><i
-                >Extended abstracts of the CHI Conference on Human Factors in
-                Computing Systems (CHI EA '25)</i
-              ></strong
-            >
-            <br />
-            <span class="year">2025</span>
-          </li>
-        </ul>
+        <li class="research-item">
+          <span class="publication-title">
+            Enhancing critical thinking with AI: A tailored warning system for
+            RAG models
+          </span>
+          <br />
+          <span class="authors"><span class="author-highlight">Zhu, X.</span></span>
+          <br />
+          <strong
+            ><i
+              >Human-AI Interaction for Augmented Reasoning Workshop, CHI
+              Conference on Human Factors in Computing Systems</i
+            ></strong
+          >
+          <br />
+          <span class="year">2025</span>
+        </li>
 
-        <h3>Workshop Papers</h3>
-        <ul class="research-list">
-          <li class="research-item">
-            <a href="#" target="_blank">
-              Enhancing critical thinking with AI: A tailored warning system for
-              RAG models
-            </a>
-            <br />
-            Zhu, X.
-            <br />
-            <strong
-              ><i
-                >Human-AI Interaction for Augmented Reasoning Workshop, CHI
-                Conference on Human Factors in Computing Systems</i
-              ></strong
-            >
-            <br />
-            <span class="year">2025</span>
-          </li>
-
-          <li class="research-item">
-            <a href="#" target="_blank">
-              Implied vs. expressed: Understanding the impact of social media
-              posts on users' emotional experience with LLM predictions
-            </a>
-            <br />
-            Zhu, X.
-            <br />
-            <strong
-              ><i
-                >Affective Computing Workshop, CHI Conference on Human Factors
-                in Computing Systems</i
-              ></strong
-            >
-            <br />
-            <span class="year">2025</span>
-          </li>
-        </ul>
-
-        <h3>Research Interests</h3>
-        <p>
-          My research focuses on affective computing, human-computer
-          interaction, and emotional simulations. I'm particularly interested in
-          understanding how technology can enhance human emotional experiences
-          and create meaningful interactions between humans and AI systems.
-        </p>
-
-        <p>
-          <a href="/" class="back-link">← Back to About</a>
-        </p>
-      </div>
+        <li class="research-item">
+          <span class="publication-title">
+            Implied vs. expressed: Understanding the impact of social media
+            posts on users' emotional experience with LLM predictions
+          </span>
+          <br />
+          <span class="authors"><span class="author-highlight">Zhu, X.</span></span>
+          <br />
+          <strong
+            ><i
+              >Affective Computing Workshop, CHI Conference on Human Factors in
+              Computing Systems</i
+            ></strong
+          >
+          <br />
+          <span class="year">2025</span>
+        </li>
+      </ul>
     </div>
 
     <script>

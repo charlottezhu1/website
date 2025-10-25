@@ -3,14 +3,14 @@ body {
   font-family: "Source Serif Pro", serif;
   line-height: 1.6;
   color: #333;
-  max-width: 1200px;
+  max-width: 2000px;
   margin: 0 auto;
   padding: 20px;
   background-color: #f9f9f9;
 }
 
 .wrapper {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -46,10 +46,13 @@ h2 {
 
 h3 {
   color: #444;
-  border-bottom: 1px solid #fae29c;
+
   padding-bottom: 5px;
   margin-top: 30px;
   font-size: 1.4em;
+}
+p {
+  font-size: 1.1em; /* 10% larger than default */
 }
 
 /* ===== LINKS ===== */
@@ -125,26 +128,47 @@ a:hover {
   margin: 0;
 }
 
+/* RESEARCH ITEMS - Removed card styling, simplified with border accent */
 .research-item {
-  margin-bottom: 25px;
-  padding: 15px;
-  background-color: #fff;
-  border-left: 3px solid #fae29c;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  padding: 10px 0; /* Remove horizontal padding, keep vertical spacing */
+  background: transparent; /* Remove white card background */
+  padding-left: 15px; /* Add left padding for border spacing */
 }
 
+/* Paper title links - darker golden color */
 .research-item a {
-  font-weight: 500;
-  color: #d4a017;
+  color: #976f09; /* Darker golden/yellow like button hover */
   text-decoration: none;
-  font-size: 1.1em;
-  line-height: 1.4;
 }
 
 .research-item a:hover {
   color: #b8860b;
   text-decoration: underline;
+}
+
+.publication-title {
+  font-weight: 500;
+  color: #333;
+  font-size: 1.1em;
+  line-height: 1.4;
+  text-decoration: none;
+  cursor: default;
+}
+
+.publication-title:hover {
+  color: #333;
+  text-decoration: none;
+  cursor: default;
+}
+
+.authors {
+  color: #666;
+}
+
+.author-highlight {
+  color: #000;
+  font-weight: 500;
 }
 
 .research-item br {
@@ -155,8 +179,8 @@ a:hover {
   color: #444;
 }
 
-.research-item .year {
-  color: #666;
+.research-item .detail {
+  color: #5c5c5c;
   font-size: 0.9em;
   font-style: italic;
 }
@@ -169,17 +193,15 @@ a:hover {
   margin: 30px 0;
 }
 
+/* GALLERY ITEMS - Removed card styling, simple overflow container */
 .gallery-item {
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: transparent; /* Remove white card background */
+  overflow: hidden; /* Keep for image cropping */
+  transition: opacity 0.2s ease; /* Simplified hover effect */
 }
 
 .gallery-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0.8; /* Simple opacity change instead of card lift */
 }
 
 .placeholder-image {
@@ -211,19 +233,18 @@ a:hover {
   margin: 30px 0;
 }
 
+/* WRITING ITEMS - Removed card styling, simple border accent layout */
 .writing-item {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
+  background: transparent; /* Remove white card background */
+  padding: 20px 0; /* Remove horizontal padding, keep vertical spacing */
   margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 3px solid #fae29c;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 3px solid #fae29c; /* Keep golden accent border */
+  padding-left: 20px; /* Add left padding for border spacing */
+  transition: border-color 0.2s ease; /* Simple border color transition */
 }
 
 .writing-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-left-color: #d4a017; /* Change border color to darker golden on hover */
 }
 
 .writing-title {
@@ -283,13 +304,13 @@ a:hover {
 }
 
 /* ===== INSTAGRAM SECTION ===== */
+/* INSTAGRAM SECTION - Removed card styling, simple border accent */
 .instagram-section {
   margin: 40px 0;
-  padding: 30px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 3px solid #fae29c;
+  padding: 30px 0; /* Remove horizontal padding, keep vertical spacing */
+  background: transparent; /* Remove white card background */
+  border-left: 3px solid #fae29c; /* Keep golden accent border */
+  padding-left: 30px; /* Add left padding for border spacing */
 }
 
 .instagram-section h3 {
@@ -310,9 +331,8 @@ a:hover {
   gap: 20px;
 }
 
+/* INSTAGRAM EMBED - Removed shadow styling */
 .instagram-embed {
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   max-width: 100%;
 }
 
@@ -320,6 +340,7 @@ a:hover {
   text-align: center;
 }
 
+/* INSTAGRAM BUTTON - Simplified without card effects */
 .instagram-btn {
   display: inline-flex;
   align-items: center;
@@ -334,16 +355,13 @@ a:hover {
   );
   color: white;
   padding: 12px 24px;
-  border-radius: 25px;
   text-decoration: none;
   font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(220, 39, 67, 0.3);
+  transition: opacity 0.3s ease; /* Simple opacity transition */
 }
 
 .instagram-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 39, 67, 0.4);
+  opacity: 0.8; /* Simple opacity change */
   text-decoration: none;
   color: white;
 }
@@ -353,14 +371,14 @@ a:hover {
   height: 18px;
 }
 
+/* INSTAGRAM STATS - Removed card styling */
 .instagram-stats {
   display: flex;
   justify-content: center;
   gap: 30px;
   margin: 20px 0;
-  padding: 20px;
-  background: rgba(212, 160, 23, 0.05);
-  border-radius: 8px;
+  padding: 20px 0; /* Remove horizontal padding, keep vertical spacing */
+  background: transparent; /* Remove tinted background */
 }
 
 .stat-item {
@@ -399,16 +417,15 @@ a:hover {
   gap: 10px;
 }
 
+/* INSTAGRAM PHOTOS - Removed card styling */
 .instagram-photo {
   aspect-ratio: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+  overflow: hidden; /* Keep for image cropping */
+  transition: opacity 0.2s ease; /* Simple opacity transition */
 }
 
 .instagram-photo:hover {
-  transform: scale(1.02);
+  opacity: 0.8; /* Simple opacity change */
 }
 
 .photo-placeholder {
@@ -641,14 +658,14 @@ button:hover {
   background: #b8860b;
 }
 
+/* DROPDOWN CONTENT - Simplified without shadow */
 .dropdown-content {
   display: none;
   position: absolute;
   background: white;
   min-width: 250px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd; /* Simple border instead of shadow */
   z-index: 1;
-  border-radius: 4px;
 }
 
 .dropdown-content a {
@@ -673,8 +690,8 @@ button:hover {
 
 /* ===== PROFILE ===== */
 .profile-picture {
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
   object-fit: cover;
   object-position: 70% center;
@@ -684,13 +701,132 @@ button:hover {
 }
 
 /* ===== CONTENT SECTIONS ===== */
+/*
+ * TWO-COLUMN LAYOUT IMPLEMENTATION
+ * Updated from single-column card layout to modern two-column grid:
+ * - Left column: Bio content with profile image, introduction, and contact info
+ * - Right column: Recent projects with thumbnail images
+ * - Maintains original golden color scheme (#d4a017, #fae29c)
+ * - Responsive design stacks columns vertically on mobile
+ * - Preserves all existing navigation and functionality
+ */
+
+/* TWO-COLUMN GRID LAYOUT - Left bio content + Right projects sidebar */
 .content {
   margin-top: 30px;
-  background: white;
-  padding: 40px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-left: 3px solid #d4a017;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 360px; /* Left column flexible, right column fixed width */
+  gap: 40px; /* Space between columns */
+  align-items: start; /* Align columns to top */
+}
+
+/* LEFT COLUMN: Bio and About Section - Removed card styling */
+.content-left {
+  background: transparent; /* Remove white card background */
+  padding: 30px 0; /* Remove horizontal padding, keep vertical spacing */
+  /* Keep original golden accent border */
+}
+
+/* Profile picture styling within left column */
+.content-left .profile-picture {
+  float: left;
+  margin-right: 20px;
+  margin-bottom: 10px;
+}
+
+/* RIGHT COLUMN: Recent Projects Section */
+.content-right {
+  background: transparent; /* No background - let projects stand out */
+  display: flex;
+  flex-direction: column;
+
+  gap: 18px; /* Space between elements */
+}
+
+/* Recent projects container */
+.recent-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Individual project thumbnail styling - Removed card effects */
+.project-thumb {
+  width: 100%;
+  height: 160px; /* Fixed height for consistent layout */
+  overflow: hidden; /* Keep for image cropping */
+  display: block;
+  transition: opacity 0.2s ease; /* Simple opacity transition */
+  text-decoration: none; /* Remove link underline */
+}
+
+/* Project thumbnail hover effects - Simple opacity change */
+.project-thumb:hover {
+  opacity: 0.8; /* Simple opacity change instead of card lift */
+}
+
+/* Project thumbnail images */
+.project-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Crop images to fit container */
+  display: block;
+}
+
+/* Project links styling - appears below project thumbnails */
+.project-links {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.project-links a {
+  color: #d4a017;
+  text-decoration: none;
+  font-size: 0.85em;
+}
+
+.project-links a:hover {
+  text-decoration: underline;
+  color: #b8860b;
+}
+
+/* SECTION TITLES - Used for "contact" and "recent projects" headings */
+.section-title {
+  color: #d4a017; /* Original golden accent color */
+  font-family: "Source Serif Pro", serif; /* Match site font */
+  font-weight: 600;
+  font-size: 18px;
+  margin: 0 0 12px 0; /* Spacing below title */
+
+  padding-bottom: 5px;
+}
+
+/* CONTACT SECTION STYLING */
+.contact-block {
+  margin-top: 25px; /* Space above contact section */
+  padding-top: 20px;
+  border-top: 1px solid #fae29c; /* Subtle separator from bio content */
+}
+
+.contact {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  color: #555; /* Slightly muted text color */
+}
+
+/* Contact links styling */
+.contact a {
+  color: #d4a017; /* Golden accent for links */
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.contact a:hover {
+  text-decoration: underline;
+  color: #b8860b; /* Darker golden on hover */
 }
 
 .dev-section {
@@ -698,7 +834,6 @@ button:hover {
   padding: 15px;
   border-radius: 4px;
   margin-top: 20px;
-  border-left: 2px solid #d4a017;
 }
 
 .dev-form {
@@ -836,12 +971,13 @@ textarea {
   min-width: 250px;
 }
 
+/* SIDEBAR SECTION - Removed card styling, simple border accent */
 .sidebar-section {
   margin-bottom: 20px;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-  border-left: 3px solid #d4a017;
+  padding: 15px 0; /* Remove horizontal padding, keep vertical spacing */
+  background-color: transparent; /* Remove gray card background */
+
+  padding-left: 15px; /* Add left padding for border spacing */
 }
 
 .sidebar-label {
@@ -866,11 +1002,18 @@ textarea {
 }
 
 /* ===== EMOTIONAL STATE STYLES ===== */
+/* EMOTIONAL STATE CONTAINER - Simplified background */
 .emotional-state-container {
-  background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
-  border-radius: 8px;
+  background: rgba(
+    212,
+    160,
+    23,
+    0.1
+  ); /* Simple tinted background instead of gradient */
   padding: 15px;
   margin-top: 10px;
+
+  padding-left: 15px; /* Add left padding for border spacing */
 }
 
 .emotion-display {
@@ -901,10 +1044,9 @@ textarea {
   text-align: center;
 }
 
+/* EMOTION ARTWORK - Removed shadow styling */
 .emotion-artwork img {
   max-width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .emotion-value {
@@ -961,18 +1103,17 @@ textarea {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
+/* CHAT BOX - Removed card styling, simple border accent */
 .chat-box {
   width: 100%;
   height: 100%;
   max-height: 500px;
   overflow-y: auto;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: transparent; /* Remove white card background */
   display: flex;
   flex-direction: column;
   margin-bottom: 15px;
-  border-left: 3px solid #d4a017;
+  padding-left: 10px; /* Add left padding for border spacing */
   scroll-behavior: smooth;
 }
 
@@ -1013,18 +1154,18 @@ textarea {
   background-color: #fae29c;
   align-self: flex-end;
   border-top-right-radius: 0;
-  border-left: 3px solid #d4a017;
+
   color: #444;
   font-weight: 500;
 }
 
+/* BOT MESSAGES - Removed card styling, simple border accent */
 .message.bot {
-  background-color: #f8f9fa;
+  background-color: transparent; /* Remove gray card background */
   align-self: flex-start;
-  border-top-left-radius: 0;
-  border-left: 3px solid #6c757d;
+  border-left: 3px solid #6c757d; /* Keep accent border */
   color: #333;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding-left: 15px; /* Add left padding for border spacing */
 }
 
 .message-container {
@@ -1055,7 +1196,7 @@ textarea {
   font-size: inherit;
   background-color: #fae29c;
   border: none;
-  border-left: 3px solid #d4a017;
+
   color: #444;
   font-weight: 500;
 }
@@ -1069,14 +1210,15 @@ textarea {
   overflow-y: auto;
 }
 
+/* DUPLICATE CHAT BOX - Removed card styling, simple border accent */
 .chat-box {
   flex: 1;
   border: 1px solid #ddd;
-  border-radius: 5px;
   margin-bottom: 20px;
   overflow-y: auto;
-  background: white;
-  border-left: 3px solid #d4a017;
+  background: transparent; /* Remove white card background */
+
+  padding-left: 10px; /* Add left padding for border spacing */
 }
 
 /* ===== ARTICLE STYLES ===== */
@@ -1146,7 +1288,6 @@ textarea {
 }
 
 .article-content blockquote {
-  border-left: 4px solid #d4a017;
   padding-left: 20px;
   margin: 20px 0;
   font-style: italic;
@@ -1173,6 +1314,34 @@ textarea {
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
+/* TABLET AND MOBILE: Stack two-column layout vertically */
+@media (max-width: 880px) {
+  /* Stack columns vertically on smaller screens */
+  .content {
+    grid-template-columns: 1fr; /* Single column layout */
+    gap: 30px; /* Slightly reduced gap for mobile */
+  }
+
+  /* Adjust right column for mobile */
+  .content-right {
+    order: 2; /* Ensure projects appear after bio content */
+  }
+
+  /* Adjust profile picture for mobile */
+  .content-left .profile-picture {
+    float: none; /* Remove float on mobile */
+    display: block;
+    margin: 0 auto 20px auto; /* Center image with bottom margin */
+    width: 140px; /* Slightly larger on mobile */
+    height: 140px;
+  }
+
+  /* Adjust project thumbnails for mobile */
+  .project-thumb {
+    height: 180px; /* Slightly taller on mobile for better visibility */
+  }
+}
+
 @media (max-width: 768px) {
   .chat-layout {
     flex-direction: column;
@@ -1187,6 +1356,15 @@ textarea {
     flex-direction: column;
     gap: 10px;
     text-align: center;
+  }
+
+  /* Additional mobile adjustments for new layout */
+  .content-left {
+    padding: 20px; /* Reduce padding on mobile */
+  }
+
+  .section-title {
+    font-size: 16px; /* Slightly smaller titles on mobile */
   }
 }
 
@@ -1263,12 +1441,13 @@ textarea {
   border-top: 1px solid #eee;
 }
 
+/* ANALYSIS INFO - Simplified without card styling */
 .analysis-info {
-  background-color: #f8f9fa;
-  padding: 12px;
-  border-radius: 4px;
-  border-left: 3px solid #d4a017;
+  background-color: transparent; /* Remove gray background */
+  padding: 12px 0; /* Remove horizontal padding, keep vertical spacing */
+
   margin: 10px 0;
+  padding-left: 12px; /* Add left padding for border spacing */
 }
 
 .analysis-info p {
@@ -1301,12 +1480,13 @@ textarea {
   flex-wrap: wrap;
 }
 
+/* TRACKER CONTAINER - Removed card styling, simple container */
 .tracker-container {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  background: transparent; /* Remove white card background */
+  overflow: hidden; /* Keep for table layout */
   margin: 20px 0;
+
+  padding-left: 15px; /* Add left padding for border spacing */
 }
 
 .tracker-table {
@@ -1441,13 +1621,13 @@ textarea {
   margin: 30px 0;
 }
 
+/* STAT CARDS - Removed card styling, simple border accent */
 .stat-card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: transparent; /* Remove white card background */
+  padding: 20px 0; /* Remove horizontal padding, keep vertical spacing */
   text-align: center;
-  border-left: 3px solid #fae29c;
+  border-left: 3px solid #fae29c; /* Keep golden accent border */
+  padding-left: 20px; /* Add left padding for border spacing */
 }
 
 .stat-card h4 {
@@ -1560,23 +1740,24 @@ textarea {
 /* ===== PROJECTS PAGE ===== */
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, minmax(300px, 1fr));
   gap: 30px;
   margin: 30px 0;
 }
 
+/* PROJECT CARDS - Removed card styling, simple container with hover effect */
 .project-card {
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: transparent; /* Remove white card background */
+  overflow: hidden; /* Keep for image cropping */
+  transition: opacity 0.2s ease; /* Simple opacity transition */
   cursor: pointer;
+  border-left: 3px solid #fae29c; /* Add golden accent border */
+  padding-left: 15px; /* Add left padding for border spacing */
 }
 
 .project-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  opacity: 0.8; /* Simple opacity change instead of card lift */
+  border-left-color: #d4a017; /* Change border color on hover */
 }
 
 .project-image {
@@ -1671,16 +1852,16 @@ textarea {
   margin-top: 20px;
 }
 
+/* GALLERY IMAGES - Simplified hover effects */
 .gallery-image {
   width: 100%;
   height: 200px;
   object-fit: cover;
-  border-radius: 8px;
-  transition: transform 0.2s ease;
+  transition: opacity 0.2s ease; /* Simple opacity transition */
 }
 
 .gallery-image:hover {
-  transform: scale(1.02);
+  opacity: 0.8; /* Simple opacity change */
 }
 
 @media (max-width: 768px) {
