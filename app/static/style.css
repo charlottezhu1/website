@@ -138,7 +138,7 @@ a:hover {
 
 /* Paper title links - darker golden color */
 .research-item a {
-  color: #976f09; /* Darker golden/yellow like button hover */
+  color: #d4a017; /* Darker golden/yellow like button hover */
   text-decoration: none;
 }
 
@@ -1738,6 +1738,125 @@ textarea {
 }
 
 /* ===== PROJECTS PAGE ===== */
+
+/* TIMELINE LAYOUT */
+.projects-timeline {
+  margin: 30px 0;
+  padding-left: 20px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 40px;
+  position: relative;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.timeline-item:hover {
+  opacity: 0.9;
+}
+
+.timeline-item:last-child .timeline-line {
+  display: none;
+}
+
+/* Timeline marker (dot and line) */
+.timeline-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding-top: 94px; /* Centers dot at middle of 200px image (100px - 6px dot radius) */
+}
+
+/* Line segment above the dot */
+.timeline-marker::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 3px;
+  height: 94px; /* Reaches from top to dot */
+  background-color: #fae29c;
+  margin-bottom: 8px;
+}
+
+/* Hide top line for first timeline item */
+.timeline-item:first-child .timeline-marker::before {
+  display: none;
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #d4a017;
+  border-radius: 50%;
+  flex-shrink: 0;
+  z-index: 1;
+  transition: background-color 0.2s ease;
+  margin: 8px 0; /* Equal spacing above and below dot */
+}
+
+.timeline-item:hover .timeline-dot {
+  background-color: #b8860b;
+}
+
+/* Line segment below the dot */
+.timeline-line {
+  width: 3px;
+  flex-grow: 1;
+  background-color: #fae29c;
+  min-height: 60px;
+}
+
+/* Timeline content (image + info) */
+.timeline-content {
+  display: flex;
+  gap: 30px;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.project-image-container {
+  flex-shrink: 0;
+}
+
+.project-timeline-image {
+  width: 300px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.project-info-container {
+  flex: 1;
+  padding-top: 5px;
+}
+
+.project-date {
+  color: #d4a017;
+  font-weight: 500;
+  font-size: 0.9em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.project-info-container h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.4em;
+}
+
+.project-info-container p {
+  margin: 0;
+  color: #666;
+  font-size: 1em;
+  line-height: 1.6;
+}
+
+/* LEGACY GRID LAYOUT (kept for backwards compatibility) */
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(300px, 1fr));
@@ -1876,6 +1995,29 @@ textarea {
   .project-info {
     padding: 0 15px;
   }
+
+  /* Timeline responsive styles */
+  .timeline-item {
+    gap: 20px;
+  }
+
+  .timeline-content {
+    gap: 20px;
+  }
+
+  .project-timeline-image {
+    width: 200px;
+    height: 150px;
+  }
+
+  /* Adjust dot position for 150px image height */
+  .timeline-marker {
+    padding-top: 69px; /* Centers dot at middle of 150px image (75px - 6px) */
+  }
+
+  .timeline-marker::before {
+    height: 69px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1885,6 +2027,38 @@ textarea {
 
   .gallery-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Timeline mobile layout - stack vertically */
+  .timeline-content {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .project-timeline-image {
+    width: 100%;
+    height: 180px;
+  }
+
+  .project-info-container {
+    padding-top: 0;
+  }
+
+  .projects-timeline {
+    padding-left: 10px;
+  }
+
+  .timeline-item {
+    gap: 15px;
+  }
+
+  /* Adjust dot position for 180px image height */
+  .timeline-marker {
+    padding-top: 84px; /* Centers dot at middle of 180px image (90px - 6px) */
+  }
+
+  .timeline-marker::before {
+    height: 84px;
   }
 }
 
