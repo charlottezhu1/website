@@ -1,7 +1,7 @@
 # Core dependencies for Charlotte AI Chat Website
 flask
 supabase
-sentence-transformers
+# sentence-transformers  # DISABLED: Embedding functionality commented out to avoid large model dependency
 numpy
 
 # Optional dependencies (if needed)

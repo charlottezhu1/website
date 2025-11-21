@@ -6,7 +6,8 @@ import numpy as np
 import threading
 from typing import List
 from app import supabase_extension
-from sentence_transformers import SentenceTransformer
+
+# from sentence_transformers import SentenceTransformer
 
 # Disable tokenizer parallelism to avoid fork warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -16,32 +17,32 @@ _embedding_model = None
 _model_lock = threading.Lock()
 
 
-def get_embedding_model():
-    """Get the embedding model with lazy loading and thread safety"""
-    global _embedding_model
-    if _embedding_model is None:
-        with _model_lock:
-            # Double-check pattern to prevent race conditions
-            if _embedding_model is None:
-                _embedding_model = SentenceTransformer("intfloat/multilingual-e5-base")
-    return _embedding_model
+# def get_embedding_model():
+#     """Get the embedding model with lazy loading and thread safety"""
+#     global _embedding_model
+#     if _embedding_model is None:
+#         with _model_lock:
+#             # Double-check pattern to prevent race conditions
+#             if _embedding_model is None:
+#                 _embedding_model = SentenceTransformer("intfloat/multilingual-e5-base")
+#     return _embedding_model
 
 
-def generate_embedding(text: str) -> List[float]:
-    """Generate embedding for text using Sentence Transformers intfloat/multilingual-e5-base model"""
-    try:
-        # Get model with lazy loading
-        model = get_embedding_model()
+# def generate_embedding(text: str) -> List[float]:
+#     """Generate embedding for text using Sentence Transformers intfloat/multilingual-e5-base model"""
+#     try:
+#         # Get model with lazy loading
+#         model = get_embedding_model()
 
-        # E5 models require a "query: " prefix for optimal performance
-        prefixed_text = f"query: {text}"
+#         # E5 models require a "query: " prefix for optimal performance
+#         prefixed_text = f"query: {text}"
 
-        # Generate embedding using sentence transformers
-        embedding = model.encode(prefixed_text, convert_to_tensor=False)
-        return embedding.tolist()
-    except Exception as e:
-        print(f"Error generating Sentence Transformer embedding: {e}")
-        return []
+#         # Generate embedding using sentence transformers
+#         embedding = model.encode(prefixed_text, convert_to_tensor=False)
+#         return embedding.tolist()
+#     except Exception as e:
+#         print(f"Error generating Sentence Transformer embedding: {e}")
+#         return []
 
 
 def cosine_similarity(a: List[float], b: List[float]) -> float:
@@ -104,13 +105,15 @@ class ConversationManager:
                 title = f"Conversation {datetime.now().strftime('%Y-%m-%d %H:%M')}"
 
             # Generate embedding for the entire conversation
-            conv_text = " ".join(
-                [
-                    f"{msg.get('text', '')} {msg.get('user_message', '')} {msg.get('agent_response', '')}"
-                    for msg in conversation_data
-                ]
-            )
-            embedding = generate_embedding(conv_text)
+            # DISABLED: Embedding functionality commented out to avoid large model dependency
+            # conv_text = " ".join(
+            #     [
+            #         f"{msg.get('text', '')} {msg.get('user_message', '')} {msg.get('agent_response', '')}"
+            #         for msg in conversation_data
+            #     ]
+            # )
+            # embedding = generate_embedding(conv_text)
+            embedding = None  # Embeddings disabled
 
             # Insert into database
             response = (
@@ -144,18 +147,19 @@ class ConversationManager:
     def get_relevant_conversations(
         self, user_message: str, limit: int = 3
     ) -> List[Dict]:
-        """Retrieve relevant conversations based on embedding similarity"""
+        """Retrieve relevant conversations based on recency and metadata (embeddings disabled)"""
         try:
-            print("\n=== DEBUG: SEARCHING WITH EMBEDDINGS ===")
+            print("\n=== DEBUG: SEARCHING WITH RECENCY + METADATA (EMBEDDINGS DISABLED) ===")
 
-            # Generate embedding for user message
-            query_embedding = generate_embedding(user_message)
+            # DISABLED: Embedding-based retrieval
+            # query_embedding = generate_embedding(user_message)
 
-            # Get all conversations
+            # Get all active conversations
             response = (
                 supabase_extension.client.table(self.saved_conversations_table)
                 .select("*")
                 .eq("is_active", True)
+                .order("created_at", desc=True)  # Sort by recency
                 .execute()
             )
 
@@ -163,39 +167,30 @@ class ConversationManager:
                 print("No conversations found in database")
                 return []
 
-            # Calculate similarities and rank conversations
+            # Simple recency + quality scoring (without embeddings)
             conversations_with_scores = []
             for conv in response.data:
-                conv_embedding = conv.get("embedding")
-                if not conv_embedding:
-                    continue
-
-                # Calculate similarity score
-                similarity = cosine_similarity(query_embedding, conv_embedding)
-
-                # Apply quality and recency boosts
+                # Calculate score based on quality and recency only
                 quality_boost = float(conv.get("quality_score", 0.5))
 
                 # Check recency
-                messages = conv.get("conversation_data", [])
-                recency_boost = 1.0
-                if messages and len(messages) > 0:
-                    last_msg = messages[-1]
-                    if "timestamp" in last_msg:
-                        try:
-                            last_time = datetime.fromisoformat(last_msg["timestamp"])
-                            time_diff = datetime.now() - last_time
-                            if time_diff.days < 1:  # Within last 24 hours
-                                recency_boost = 1.5
-                        except (ValueError, TypeError):
-                            pass
+                try:
+                    created_time = datetime.fromisoformat(conv.get("created_at", ""))
+                    time_diff = datetime.now() - created_time
+                    if time_diff.days < 1:  # Within last 24 hours
+                        recency_score = 1.5
+                    elif time_diff.days < 7:  # Within last week
+                        recency_score = 1.2
+                    else:
+                        recency_score = 1.0
+                except (ValueError, TypeError):
+                    recency_score = 1.0
 
-                # Calculate final score
-                final_score = similarity * (1 + quality_boost) * recency_boost
+                # Calculate final score (without semantic similarity)
+                final_score = quality_boost * recency_score
 
-                if final_score > 0:
-                    conv["relevance_score"] = final_score
-                    conversations_with_scores.append(conv)
+                conv["relevance_score"] = final_score
+                conversations_with_scores.append(conv)
 
             # Sort by relevance and return top results
             conversations_with_scores.sort(
@@ -542,48 +537,28 @@ class ContextRetriever:
     def _get_historical_conversations(
         self, user_message: str, limit: int
     ) -> List[Dict]:
-        """Get historically relevant context based on embedding similarity"""
+        """Get historically relevant context based on recency (embeddings disabled)"""
         try:
-            print("\n=== DEBUG: HISTORICAL CONTEXT SEARCH ===")
+            print("\n=== DEBUG: HISTORICAL CONTEXT SEARCH (EMBEDDINGS DISABLED) ===")
 
-            # Generate embedding for user message
-            query_embedding = generate_embedding(user_message)
+            # DISABLED: Embedding-based retrieval
+            # query_embedding = generate_embedding(user_message)
 
-            # Get all memories
+            # Get recent conversations, sorted by creation date
             conversations = (
                 supabase_extension.client.table(self.conversations_table)
                 .select("*")
+                .order("created_at", desc=True)
+                .limit(limit)
                 .execute()
             )
 
             if not conversations.data:
                 return []
 
-            # Calculate similarities and rank memories
-            memories_with_scores = []
-            for memory in conversations.data:
-                conversation_data = memory.get("conversation_data", [])
-                memory_embedding = memory.get("embedding")
-
-                if not memory_embedding:
-                    # Generate embedding if not present
-                    memory_embedding = generate_embedding(conversation_data)
-                    # Update memory with embedding
-                    supabase_extension.client.table(self.conversations_table).update(
-                        {"embedding": memory_embedding}
-                    ).eq("id", memory["id"]).execute()
-
-                similarity = cosine_similarity(query_embedding, memory_embedding)
-
-                if similarity > 0.5:  # Threshold for relevance
-                    memory["similarity_score"] = similarity
-                    memories_with_scores.append(memory)
-
-            # Sort by similarity and return top results
-            memories_with_scores.sort(key=lambda x: x["similarity_score"], reverse=True)
-
-            print(f"Found {len(memories_with_scores)} relevant historical items")
-            return memories_with_scores[:limit]
+            # Return most recent conversations (without semantic similarity)
+            print(f"Found {len(conversations.data)} recent historical items")
+            return conversations.data
 
         except Exception as e:
             print(f"Error getting historical context: {e}")
@@ -644,46 +619,28 @@ class ContextRetriever:
             return []
 
     def _get_historical_context(self, user_message: str, limit: int) -> List[Dict]:
-        """Get historically relevant context based on embedding similarity"""
+        """Get historically relevant context based on recency (embeddings disabled)"""
         try:
-            print("\n=== DEBUG: HISTORICAL CONTEXT SEARCH ===")
+            print("\n=== DEBUG: HISTORICAL CONTEXT SEARCH (EMBEDDINGS DISABLED) ===")
 
-            # Generate embedding for user message
-            query_embedding = generate_embedding(user_message)
+            # DISABLED: Embedding-based retrieval
+            # query_embedding = generate_embedding(user_message)
 
-            # Get all memories
+            # Get recent memories, sorted by creation date
             response = (
-                supabase_extension.client.table(self.memory_table).select("*").execute()
+                supabase_extension.client.table(self.memory_table)
+                .select("*")
+                .order("created_at", desc=True)
+                .limit(limit)
+                .execute()
             )
 
             if not response.data:
                 return []
 
-            # Calculate similarities and rank memories
-            memories_with_scores = []
-            for memory in response.data:
-                memory_text = f"{memory.get('user_message', '')} {memory.get('agent_response', '')}"
-                memory_embedding = memory.get("embedding")
-
-                if not memory_embedding:
-                    # Generate embedding if not present
-                    memory_embedding = generate_embedding(memory_text)
-                    # Update memory with embedding
-                    supabase_extension.client.table(self.memory_table).update(
-                        {"embedding": memory_embedding}
-                    ).eq("id", memory["id"]).execute()
-
-                similarity = cosine_similarity(query_embedding, memory_embedding)
-
-                if similarity > 0.5:  # Threshold for relevance
-                    memory["similarity_score"] = similarity
-                    memories_with_scores.append(memory)
-
-            # Sort by similarity and return top results
-            memories_with_scores.sort(key=lambda x: x["similarity_score"], reverse=True)
-
-            print(f"Found {len(memories_with_scores)} relevant historical items")
-            return memories_with_scores[:limit]
+            # Return most recent memories (without semantic similarity)
+            print(f"Found {len(response.data)} recent historical items")
+            return response.data
 
         except Exception as e:
             print(f"Error getting historical context: {e}")
@@ -1276,74 +1233,75 @@ def analyze_conversation_for_save(conversation_data: List[Dict]) -> Dict[str, An
         }
 
 
-def populate_embeddings_for_existing_memories():
-    """Populate embeddings for existing memories in the database"""
-    try:
-        print("\n=== POPULATING EMBEDDINGS FOR EXISTING MEMORIES ===")
-
-        # Get all memories without embeddings from both tables
-        memory_response = (
-            supabase_extension.client.table("memory_stream")
-            .select("*")
-            .is_("embedding", "null")
-            .execute()
-        )
-
-        conversations_response = (
-            supabase_extension.client.table("saved_conversations")
-            .select("*")
-            .is_("embedding", "null")
-            .execute()
-        )
-
-        updated_count = 0
-
-        # Update memory_stream embeddings
-        for memory in memory_response.data:
-            try:
-                # Generate embedding for the conversation context
-                memory_text = f"{memory.get('user_message', '')} {memory.get('agent_response', '')}"
-                embedding = generate_embedding(memory_text)
-
-                # Update the memory with the embedding
-                supabase_extension.client.table("memory_stream").update(
-                    {"embedding": embedding}
-                ).eq("id", memory["id"]).execute()
-
-                updated_count += 1
-                print(f"Updated memory {memory['id']} with embedding")
-            except Exception as e:
-                print(f"Error updating memory {memory['id']}: {e}")
-                continue
-
-        # Update saved_conversations embeddings
-        for conv in conversations_response.data:
-            try:
-                # Generate embedding for the entire conversation
-                conv_text = " ".join(
-                    [
-                        f"{msg.get('text', '')} {msg.get('user_message', '')} {msg.get('agent_response', '')}"
-                        for msg in conv.get("conversation_data", [])
-                    ]
-                )
-                embedding = generate_embedding(conv_text)
-
-                # Update the conversation with the embedding
-                supabase_extension.client.table("saved_conversations").update(
-                    {"embedding": embedding}
-                ).eq("id", conv["id"]).execute()
-
-                updated_count += 1
-                print(f"Updated conversation {conv['id']} with embedding")
-            except Exception as e:
-                print(f"Error updating conversation {conv['id']}: {e}")
-                continue
-
-        print(f"\nPopulated embeddings for {updated_count} items")
-
-    except Exception as e:
-        print(f"Error populating embeddings: {e}")
-        raise
+# DISABLED: Embedding functionality commented out to avoid large model dependency
+# def populate_embeddings_for_existing_memories():
+#     """Populate embeddings for existing memories in the database"""
+#     try:
+#         print("\n=== POPULATING EMBEDDINGS FOR EXISTING MEMORIES ===")
+#
+#         # Get all memories without embeddings from both tables
+#         memory_response = (
+#             supabase_extension.client.table("memory_stream")
+#             .select("*")
+#             .is_("embedding", "null")
+#             .execute()
+#         )
+#
+#         conversations_response = (
+#             supabase_extension.client.table("saved_conversations")
+#             .select("*")
+#             .is_("embedding", "null")
+#             .execute()
+#         )
+#
+#         updated_count = 0
+#
+#         # Update memory_stream embeddings
+#         for memory in memory_response.data:
+#             try:
+#                 # Generate embedding for the conversation context
+#                 memory_text = f"{memory.get('user_message', '')} {memory.get('agent_response', '')}"
+#                 embedding = generate_embedding(memory_text)
+#
+#                 # Update the memory with the embedding
+#                 supabase_extension.client.table("memory_stream").update(
+#                     {"embedding": embedding}
+#                 ).eq("id", memory["id"]).execute()
+#
+#                 updated_count += 1
+#                 print(f"Updated memory {memory['id']} with embedding")
+#             except Exception as e:
+#                 print(f"Error updating memory {memory['id']}: {e}")
+#                 continue
+#
+#         # Update saved_conversations embeddings
+#         for conv in conversations_response.data:
+#             try:
+#                 # Generate embedding for the entire conversation
+#                 conv_text = " ".join(
+#                     [
+#                         f"{msg.get('text', '')} {msg.get('user_message', '')} {msg.get('agent_response', '')}"
+#                         for msg in conv.get("conversation_data", [])
+#                     ]
+#                 )
+#                 embedding = generate_embedding(conv_text)
+#
+#                 # Update the conversation with the embedding
+#                 supabase_extension.client.table("saved_conversations").update(
+#                     {"embedding": embedding}
+#                 ).eq("id", conv["id"]).execute()
+#
+#                 updated_count += 1
+#                 print(f"Updated conversation {conv['id']} with embedding")
+#             except Exception as e:
+#                 print(f"Error updating conversation {conv['id']}: {e}")
+#                 continue
+#
+#         print(f"\nPopulated embeddings for {updated_count} items")
+#
+#     except Exception as e:
+#         print(f"Error populating embeddings: {e}")
+#         raise
 
 
 # Helper functions for conversation analysis

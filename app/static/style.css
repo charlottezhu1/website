@@ -1163,10 +1163,10 @@ textarea {
 .message.bot {
   background-color: transparent; /* Remove gray card background */
   align-self: flex-start;
-  border-left: 3px solid #6c757d; /* Keep accent border */
+  background-color: #e7e7e7;
   color: #333;
-  padding-left: 15px; /* Add left padding for border spacing */
-}
+  border-top-left-radius: 0;
+  }
 
 .message-container {
   display: flex;

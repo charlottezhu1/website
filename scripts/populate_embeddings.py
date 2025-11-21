@@ -1,3 +1,10 @@
+"""
+DEPRECATED: This script is no longer active.
+Embedding functionality has been disabled to avoid large model dependency (~500MB).
+The agent now uses recency-based and metadata-based retrieval instead of semantic similarity.
+See agent_components.py for the updated retrieval logic.
+"""
+
 import sys
 import os
 from pathlib import Path

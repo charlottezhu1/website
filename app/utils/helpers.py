@@ -4,27 +4,6 @@ import json
 import html
 
 
-# --- Text Processing Utilities ---
-
-
-def convert_to_paragraphs(text):
-    """
-    Convert raw text into HTML paragraphs.
-    - Normalizes line endings to '\n'.
-    - Splits text into paragraphs on two or more newlines.
-    - Escapes HTML in each paragraph and replaces single newlines with spaces.
-    Returns concatenated HTML string of <p>...</p> paragraphs.
-    """
-    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
-    paragraphs = re.split(r"\n\s*\n", normalized.strip())
-    html_paragraphs = "".join(
-        f'<p>{html.escape(p.strip().replace("\n", " "))}</p>'
-        for p in paragraphs
-        if p.strip()
-    )
-    return html_paragraphs
-
-
 # --- File Loading Utilities ---
 
 

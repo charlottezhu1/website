@@ -15,11 +15,9 @@ def create_app():
     supabase_extension.init_app(app)
 
     from .routes.index_routes import index_bp
-    from .routes.add_routes import add_bp
     from .routes.chat_routes import chat_bp
 
     app.register_blueprint(index_bp)
-    app.register_blueprint(add_bp)
     app.register_blueprint(chat_bp)
 
     return app

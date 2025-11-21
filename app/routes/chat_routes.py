@@ -10,8 +10,9 @@ from app.utils.agent_components import (
     AutoObserver,
     populate_initial_data,
     analyze_conversation_for_save,
-    generate_embedding,
-    populate_embeddings_for_existing_memories,
+    # DISABLED: Embedding functionality commented out to avoid large model dependency
+    # generate_embedding,
+    # populate_embeddings_for_existing_memories,
 )
 from app import supabase_extension
 
@@ -104,26 +105,26 @@ def send():
         except Exception as e:
             print(f"Error storing emotional state: {e}")
 
-        # Store conversation context in memory_stream with embedding
+        # Store conversation context in memory_stream (without embedding - disabled)
         try:
-            # Generate embedding for the conversation context
-            context_text = f"User: {user_message}\nCharlotte: {reply}"
-            context_embedding = generate_embedding(context_text)
+            # DISABLED: Embedding generation commented out to avoid large model dependency
+            # context_text = f"User: {user_message}\nCharlotte: {reply}"
+            # context_embedding = generate_embedding(context_text)
 
-            # Store in memory_stream table
+            # Store in memory_stream table (without embedding)
             supabase_extension.client.table("memory_stream").insert(
                 {
                     "user_message": user_message,
                     "agent_response": reply,
                     "conversation_topic": "general",  # Could be extracted later
-                    "context_embedding": context_embedding,
-                    "emotional_context": emotion,
-                    "importance_score": 0.5,  # Default importance
-                    "is_active": True,
+                    # "context_embedding": context_embedding,  # Disabled
+                    "emotional_context": {"emotion": emotion, "intensity": intensity},  # JSONB format
+                    "relevance_score": 0.5,  # Match schema column name
                 }
             ).execute()
+            print(f"✓ Memory stored: {user_message[:30]}... → {reply[:30]}...")
         except Exception as e:
-            print(f"Error storing conversation context: {e}")
+            print(f"✗ Error storing conversation context: {e}")
 
         return jsonify({"reply": reply, "emotion": emotion, "intensity": intensity})
     except Exception as e:
@@ -170,6 +171,56 @@ def get_current_emotion():
                 "timestamp": datetime.now().isoformat(),
             }
         )
+
+
+@chat_bp.route("/emotion-log", methods=["GET"])
+def get_emotion_log():
+    """Get recent emotional state history"""
+    try:
+        limit = request.args.get("limit", 20, type=int)  # Default 20 entries
+
+        response = (
+            supabase_extension.client.table("emotional_states")
+            .select("emotion, intensity, trigger, conversation_context, created_at")
+            .order("created_at", desc=True)
+            .limit(limit)
+            .execute()
+        )
+
+        return jsonify({
+            "success": True,
+            "emotions": response.data,
+            "count": len(response.data)
+        })
+
+    except Exception as e:
+        print(f"Error getting emotion log: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@chat_bp.route("/memory-log", methods=["GET"])
+def get_memory_log():
+    """Get recent memory stream history"""
+    try:
+        limit = request.args.get("limit", 20, type=int)  # Default 20 entries
+
+        response = (
+            supabase_extension.client.table("memory_stream")
+            .select("user_message, agent_response, conversation_topic, emotional_context, created_at")
+            .order("created_at", desc=True)
+            .limit(limit)
+            .execute()
+        )
+
+        return jsonify({
+            "success": True,
+            "memories": response.data,
+            "count": len(response.data)
+        })
+
+    except Exception as e:
+        print(f"Error getting memory log: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 @chat_bp.route("/save", methods=["POST"])
@@ -399,13 +450,14 @@ def save_simple():
         return jsonify({"error": str(e)}), 500
 
 
-@chat_bp.route("/populate-embeddings", methods=["POST"])
-def populate_embeddings():
-    """Populate embeddings for existing memory stream data"""
-    try:
-        populate_embeddings_for_existing_memories()
-        return jsonify(
-            {"success": True, "message": "Embeddings populated successfully"}
-        )
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+# DISABLED: Embedding functionality commented out to avoid large model dependency
+# @chat_bp.route("/populate-embeddings", methods=["POST"])
+# def populate_embeddings():
+#     """Populate embeddings for existing memory stream data"""
+#     try:
+#         populate_embeddings_for_existing_memories()
+#         return jsonify(
+#             {"success": True, "message": "Embeddings populated successfully"}
+#         )
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500

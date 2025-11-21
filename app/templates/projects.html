@@ -43,10 +43,7 @@
               </button>
               <div class="dropdown-content" id="funzziesDropdown">
                 <a href="{{ url_for('chat.chat') }}">Chat</a>
-                <a href="{{ url_for('index.drawings') }}">Drawings</a>
-                <a href="{{ url_for('index.photos') }}">Photos</a>
-                <a href="{{ url_for('index.writings') }}">Writings</a>
-                {% if session.get('dev') %}
+                                {% if session.get('dev') %}
                 <a href="{{ url_for('index.phd_tracker') }}">PhD Tracker</a>
                 {% endif %}
               </div>
