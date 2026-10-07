@@ -47,6 +47,7 @@
               </div>
             </div>
           </li>
+          
         </ul>
       </div>
       <div style="clear: both"></div>
@@ -106,15 +107,38 @@
           <!-- Sidebar -->
           <div class="chat-sidebar">
             <div class="sidebar-section">
-              <label for="promptInput" class="sidebar-label">
-                Your Identity: 
+              <div class="sidebar-header">
+                <label class="sidebar-label">Your Identity</label>
+                {% if is_authenticated %}
+                <button onclick="logout()" class="secondary-btn sidebar-auth-btn">
+                  Logout
+                </button>
+                {% else %}
+                
+                {% endif %}
+              </div>
+
+              {% if is_authenticated %}
+              <div class="user-profile-display">
+                <p><strong>Name:</strong> {{ current_user.username }}</p>
+                <p><strong>Role:</strong> {{ current_user.role }}</p>
+                <p class="auth-note">{{ current_user.role_description }}</p>
+              </div>
+              {% else %}
+              <p class="auth-prompt">
+                Who are you to Charlotte?
+                <a href="#" onclick="showLoginModal(); return false;">Reveal your identity.</a>
+              </p>
+              {% endif %}
+
+              <label for="promptInput" class="sidebar-label" style="margin-top: 15px;">
+                Additional Context:
               </label>
               <textarea
                 id="promptInput"
                 class="sidebar-textarea"
-                placeholder="Update your identity..."
-              ></textarea
-              >
+                placeholder="Add any additional context for this conversation..."
+              ></textarea>
             </div>
 
             <div class="sidebar-section">
@@ -156,6 +180,16 @@
     <script>
       // Pass the is_dev variable from Flask to JavaScript
       const isDev = {{ 'true' if is_dev else 'false' }};
+
+      // Pass authentication context from Flask to JavaScript
+      const isAuthenticated = {{ 'true' if is_authenticated else 'false' }};
+      const currentUser = {
+        id: "{{ current_user.id }}",
+        email: "{{ current_user.email }}",
+        username: "{{ current_user.username }}",
+        role: "{{ current_user.role }}",
+        role_description: "{{ current_user.role_description }}"
+      };
     </script>
     <script src="{{ url_for('static', filename='chat.js') }}"></script>
     <script>

@@ -67,7 +67,125 @@ def chat():
     is_dev = session.get("dev", False)
     response = supabase_extension.client.table("writings").select("id, title").execute()
     articles = response.data
-    return render_template("chat.html", is_dev=is_dev, articles=articles)
+
+    # Get auth context for template
+    is_authenticated = session.get("user_id") is not None
+    current_user = {
+        "id": session.get("user_id", ""),
+        "email": session.get("user_email", ""),
+        "username": session.get("username", ""),
+        "role": session.get("user_role", ""),
+        "role_description": session.get("user_role_description", "")
+    }
+
+    return render_template(
+        "chat.html",
+        is_dev=is_dev,
+        articles=articles,
+        is_authenticated=is_authenticated,
+        current_user=current_user
+    )
+
+
+@chat_bp.route("/auth/login", methods=["POST"])
+def login():
+    """Authenticate user with email and password via Supabase Auth"""
+    try:
+        data = request.get_json()
+        email = data.get("email", "").strip()
+        password = data.get("password", "")
+
+        if not email or not password:
+            return jsonify({"error": "Email and password are required"}), 400
+
+        # Authenticate with Supabase Auth
+        try:
+            auth_response = supabase_extension.client.auth.sign_in_with_password({
+                "email": email,
+                "password": password
+            })
+
+            if not auth_response.user:
+                return jsonify({"error": "Invalid credentials"}), 401
+
+            user_id = auth_response.user.id
+
+            # Fetch user profile to get role and username
+            profile_response = (
+                supabase_extension.client.table("user_profiles")
+                .select("username, role, role_description")
+                .eq("id", user_id)
+                .execute()
+            )
+
+            if not profile_response.data:
+                return jsonify({"error": "User profile not found"}), 404
+
+            profile = profile_response.data[0]
+
+            # Store in Flask session
+            session["user_id"] = user_id
+            session["user_email"] = auth_response.user.email
+            session["username"] = profile["username"]
+            session["user_role"] = profile["role"]
+            session["user_role_description"] = profile["role_description"]
+            session["access_token"] = auth_response.session.access_token
+
+            print(f"✓ User logged in: {profile['username']} ({profile['role']})")
+
+            return jsonify({
+                "success": True,
+                "user": {
+                    "id": user_id,
+                    "email": auth_response.user.email,
+                    "username": profile["username"],
+                    "role": profile["role"]
+                }
+            })
+
+        except Exception as e:
+            print(f"Supabase auth error: {e}")
+            return jsonify({"error": "Invalid credentials"}), 401
+
+    except Exception as e:
+        print(f"Login error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@chat_bp.route("/auth/logout", methods=["POST"])
+def logout():
+    """Clear user session"""
+    try:
+        username = session.get("username", "Unknown")
+        session.clear()
+        print(f"✓ User logged out: {username}")
+        return jsonify({"success": True})
+    except Exception as e:
+        print(f"Logout error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@chat_bp.route("/current-user", methods=["GET"])
+def get_current_user():
+    """Get current authenticated user info"""
+    try:
+        user_id = session.get("user_id")
+
+        if not user_id:
+            return jsonify({"authenticated": False})
+
+        return jsonify({
+            "authenticated": True,
+            "user": {
+                "id": session.get("user_id"),
+                "email": session.get("user_email"),
+                "username": session.get("username"),
+                "role": session.get("user_role")
+            }
+        })
+    except Exception as e:
+        print(f"Error getting current user: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 @chat_bp.route("/send", methods=["POST"])
@@ -78,12 +196,22 @@ def send():
         user_message = data.get("message", "").strip()
         prompt = data.get("prompt", "").strip()
 
+        # Get user context from session
+        user_id = session.get("user_id")
+        user_role = session.get("user_role", "unknown")
+        username = session.get("username", "someone")
+
         if not user_message:
             return jsonify({"error": "Message is required"}), 400
 
+        # Inject user role context into prompt if authenticated
+        if user_id and user_role:
+            role_context = f"\n\n[Context: You are speaking with {username}, your {user_role}.]"
+            prompt = prompt + role_context if prompt else role_context
+
         # Call your language model with prompt and message
-        print("generating reply...")
-        response_data = deepseek_request(user_message, prompt=prompt)
+        print(f"generating reply for user: {username} ({user_role})...")
+        response_data = deepseek_request(user_message, prompt=prompt, username=username, user_id=user_id)
         print(response_data)
 
         # Extract reply and emotional state
@@ -100,10 +228,12 @@ def send():
                     "trigger": f"User message: {user_message[:100]}...",
                     "conversation_context": f"Response to: {user_message[:100]}...",
                     "transition_from": "previous_state",  # You could track this more precisely
+                    "user_id": user_id,  # NULL if not authenticated
                 }
             ).execute()
+            print(f"✓ Emotional state stored for user: {username}")
         except Exception as e:
-            print(f"Error storing emotional state: {e}")
+            print(f"✗ Error storing emotional state: {e}")
 
         # Store conversation context in memory_stream (without embedding - disabled)
         try:
@@ -120,9 +250,10 @@ def send():
                     # "context_embedding": context_embedding,  # Disabled
                     "emotional_context": {"emotion": emotion, "intensity": intensity},  # JSONB format
                     "relevance_score": 0.5,  # Match schema column name
+                    "user_id": user_id,  # NULL if not authenticated
                 }
             ).execute()
-            print(f"✓ Memory stored: {user_message[:30]}... → {reply[:30]}...")
+            print(f"✓ Memory stored for {username}: {user_message[:30]}... → {reply[:30]}...")
         except Exception as e:
             print(f"✗ Error storing conversation context: {e}")
 
@@ -133,8 +264,30 @@ def send():
 
 @chat_bp.route("/current-emotion", methods=["GET"])
 def get_current_emotion():
-    """Get the most recent emotional state"""
+    """Get the most recent emotional state (filtered by user if authenticated)"""
     try:
+        user_id = session.get("user_id")
+
+        # Strategy 1: Try to get user-specific emotional state
+        if user_id:
+            response = (
+                supabase_extension.client.table("emotional_states")
+                .select("*")
+                .eq("user_id", user_id)
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+
+            if response.data:
+                latest_emotion = response.data[0]
+                return jsonify({
+                    "emotion": latest_emotion["emotion"],
+                    "intensity": latest_emotion["intensity"],
+                    "timestamp": latest_emotion["created_at"],
+                })
+
+        # Strategy 2: If no user-specific data, get the most recent global state
         response = (
             supabase_extension.client.table("emotional_states")
             .select("*")
@@ -145,52 +298,130 @@ def get_current_emotion():
 
         if response.data:
             latest_emotion = response.data[0]
-            return jsonify(
-                {
-                    "emotion": latest_emotion["emotion"],
-                    "intensity": latest_emotion["intensity"],
-                    "timestamp": latest_emotion["created_at"],
-                }
-            )
-        else:
-            # Return default state if no emotional data exists
-            return jsonify(
-                {
-                    "emotion": "happy",
-                    "intensity": 0.7,
-                    "timestamp": datetime.now().isoformat(),
-                }
-            )
+            return jsonify({
+                "emotion": latest_emotion["emotion"],
+                "intensity": latest_emotion["intensity"],
+                "timestamp": latest_emotion["created_at"],
+            })
+
+        # Strategy 3: Only use default if database is completely empty
+        return jsonify({
+            "emotion": "calm",
+            "intensity": 0.7,
+            "timestamp": datetime.now().isoformat(),
+        })
 
     except Exception as e:
         print(f"Error getting current emotion: {e}")
-        return jsonify(
-            {
-                "emotion": "neutral",
-                "intensity": 0.5,
-                "timestamp": datetime.now().isoformat(),
-            }
+        # On error, try to get ANY emotional state from database
+        try:
+            response = (
+                supabase_extension.client.table("emotional_states")
+                .select("*")
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+
+            if response.data:
+                latest_emotion = response.data[0]
+                return jsonify({
+                    "emotion": latest_emotion["emotion"],
+                    "intensity": latest_emotion["intensity"],
+                    "timestamp": latest_emotion["created_at"],
+                })
+        except:
+            pass
+
+        # Final fallback
+        return jsonify({
+            "emotion": "calm",
+            "intensity": 0.7,
+            "timestamp": datetime.now().isoformat(),
+        })
+
+
+@chat_bp.route("/chat-history", methods=["GET"])
+def get_chat_history():
+    """Get chat history for the authenticated user"""
+    try:
+        user_id = session.get("user_id")
+
+        if not user_id:
+            return jsonify({"messages": []})  # Return empty for unauthenticated
+
+        # Get query parameters for pagination
+        limit = request.args.get("limit", 50, type=int)  # Default 50 messages
+        offset = request.args.get("offset", 0, type=int)
+
+        # Fetch messages from memory_stream
+        response = (
+            supabase_extension.client.table("memory_stream")
+            .select("user_message, agent_response, created_at")
+            .eq("user_id", user_id)
+            .order("created_at", desc=False)  # Oldest first for chat display
+            .range(offset, offset + limit - 1)
+            .execute()
         )
+
+        # Format messages for frontend
+        messages = []
+        for item in response.data:
+            # Add user message
+            messages.append({
+                "sender": "user",
+                "text": item["user_message"],
+                "timestamp": item["created_at"]
+            })
+            # Add agent response
+            messages.append({
+                "sender": "bot",
+                "text": item["agent_response"],
+                "timestamp": item["created_at"]
+            })
+
+        return jsonify({
+            "success": True,
+            "messages": messages,
+            "count": len(messages)
+        })
+
+    except Exception as e:
+        print(f"Error fetching chat history: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "messages": []
+        }), 500
 
 
 @chat_bp.route("/emotion-log", methods=["GET"])
 def get_emotion_log():
-    """Get recent emotional state history"""
+    """Get recent emotional state history (filtered by user)"""
     try:
         limit = request.args.get("limit", 20, type=int)  # Default 20 entries
+        query_user_id = request.args.get("user_id")  # Optional query param
 
-        response = (
+        # Get user_id from query param or session
+        user_id = query_user_id if query_user_id else session.get("user_id")
+
+        # Build query with optional user filtering
+        query = (
             supabase_extension.client.table("emotional_states")
-            .select("emotion, intensity, trigger, conversation_context, created_at")
-            .order("created_at", desc=True)
-            .limit(limit)
-            .execute()
+            .select("emotion, intensity, trigger, conversation_context, created_at, user_id")
         )
+
+        # Filter by user_id if provided
+        if user_id:
+            query = query.eq("user_id", user_id)
+
+        response = query.order("created_at", desc=True).limit(limit).execute()
 
         return jsonify({
             "success": True,
             "emotions": response.data,
-            "count": len(response.data)
+            "count": len(response.data),
+            "filtered_by_user": user_id is not None
         })
 
     except Exception as e:
@@ -200,22 +431,31 @@ def get_emotion_log():
 
 @chat_bp.route("/memory-log", methods=["GET"])
 def get_memory_log():
-    """Get recent memory stream history"""
+    """Get recent memory stream history (filtered by user)"""
     try:
         limit = request.args.get("limit", 20, type=int)  # Default 20 entries
+        query_user_id = request.args.get("user_id")  # Optional query param
 
-        response = (
+        # Get user_id from query param or session
+        user_id = query_user_id if query_user_id else session.get("user_id")
+
+        # Build query with optional user filtering
+        query = (
             supabase_extension.client.table("memory_stream")
-            .select("user_message, agent_response, conversation_topic, emotional_context, created_at")
-            .order("created_at", desc=True)
-            .limit(limit)
-            .execute()
+            .select("user_message, agent_response, conversation_topic, emotional_context, created_at, user_id")
         )
+
+        # Filter by user_id if provided
+        if user_id:
+            query = query.eq("user_id", user_id)
+
+        response = query.order("created_at", desc=True).limit(limit).execute()
 
         return jsonify({
             "success": True,
             "memories": response.data,
-            "count": len(response.data)
+            "count": len(response.data),
+            "filtered_by_user": user_id is not None
         })
 
     except Exception as e:

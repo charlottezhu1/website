@@ -16,6 +16,8 @@ client_openai = OpenAI(api_key=OPENAI_API_KEY, base_url="https://api.openai.com/
 def deepseek_request(
     user_message: str,
     prompt: str = "You are a helpful assistant.",  # Prompt for task definition.
+    username: str = None,  # Username of the person providing additional context
+    user_id: str = None,  # User ID for retrieving user-specific conversation history
     model: str = "deepseek-chat",
     max_tokens: int = 1500,
 ) -> dict:
@@ -25,11 +27,23 @@ def deepseek_request(
 
     # Get relevant context from database
     context_retriever = ContextRetriever()
-    context = context_retriever.retrieve_relevant_context(user_message)
+    context = context_retriever.retrieve_relevant_context(user_message, user_id=user_id)
     context_prompt = format_context_for_prompt(context)
 
-    # Combine prompts
-    system_prompt = instruction + "\n\n" + context_prompt + "\n\n" + more_info
+    # Build system prompt with sections in priority order
+    system_prompt = instruction + "\n\n" + context_prompt
+
+    # Add user-provided additional context if present
+    if prompt and prompt.strip():
+        # Show who provided the context if username is available
+        if username:
+            context_header = f"--- Additional Context provided by {username} ---"
+        else:
+            context_header = "--- Additional Context for This Conversation ---"
+        system_prompt += f"\n\n{context_header}\n" + prompt.strip()
+
+    # Add Charlotte's background information
+    system_prompt += "\n\n" + more_info
 
     # Add emotional state instruction to the prompt
     emotional_instruction = """
@@ -48,6 +62,9 @@ def deepseek_request(
     final_prompt = system_prompt + emotional_instruction
     print("\n=== DEBUG: FINAL PROMPT ===")
     print(final_prompt)
+    print(f"\n=== DEBUG: ADDITIONAL CONTEXT PROVIDED: {bool(prompt and prompt.strip())} ===")
+    if prompt and prompt.strip():
+        print(f"Additional Context: {prompt.strip()[:200]}...")
     print("\n=== DEBUG: USER MESSAGE ===")
     print(user_message)
 

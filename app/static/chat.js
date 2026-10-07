@@ -40,6 +40,9 @@ const emotionArtwork = {
     "https://dgcfnvaratrfzwofqohg.supabase.co/storage/v1/object/public/GalleryArt/website/affects/lonely.PNG",
 };
 
+// Feature flag: Set to false to allow unauthenticated chat
+const REQUIRE_AUTH_TO_CHAT = true;  // EASY TOGGLE: Change to false to disable auth requirement
+
 // Mapping of old emotions to new emotions for backwards compatibility
 const emotionMapping = {
   content: "satisfied",
@@ -179,9 +182,10 @@ function mapOldEmotionToNew(emotion) {
   return emotionMapping[lowerEmotion] || lowerEmotion;
 }
 
-// Load initial emotional state when page loads
+// Load initial emotional state and chat history when page loads
 document.addEventListener("DOMContentLoaded", function () {
   loadCurrentEmotion();
+  loadChatHistory();  // Load chat history for authenticated users
 });
 
 function loadCurrentEmotion() {
@@ -193,6 +197,34 @@ function loadCurrentEmotion() {
     .catch((error) => {
       console.error("Error loading emotional state:", error);
       updateEmotionalState("happy", 0.7); // Default fallback
+    });
+}
+
+function loadChatHistory() {
+  // Only load history if user is authenticated
+  if (!isAuthenticated) {
+    console.log("User not authenticated, skipping chat history load");
+    return;
+  }
+
+  fetch("/chat-history?limit=50")
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success && data.messages && data.messages.length > 0) {
+        console.log(`Loading ${data.messages.length} historical messages`);
+
+        // Add each message to the chat interface (historical messages - no typing effect)
+        data.messages.forEach((msg) => {
+          addMessage(msg.text, msg.sender, msg.timestamp, true);
+        });
+
+        console.log(`✓ Loaded ${data.count} messages from history`);
+      } else {
+        console.log("No chat history found for this user");
+      }
+    })
+    .catch((error) => {
+      console.error("Error loading chat history:", error);
     });
 }
 
@@ -252,12 +284,49 @@ function updateEmotionalState(emotion, intensity) {
   }
 }
 
-function addMessage(text, sender) {
+function formatTimestamp(timestamp) {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  // Format time (HH:MM AM/PM)
+  const timeStr = date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+
+  // If today, show just time
+  if (messageDate.getTime() === today.getTime()) {
+    return timeStr;
+  }
+
+  // If yesterday
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (messageDate.getTime() === yesterday.getTime()) {
+    return `Yesterday ${timeStr}`;
+  }
+
+  // Otherwise show date and time
+  return `${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${timeStr}`;
+}
+
+function addMessage(text, sender, timestamp = null, isHistorical = false) {
   const chatDiv = document.getElementById("chat");
 
   // create outer container for alignment
   const container = document.createElement("div");
   container.className = `message-container ${sender}-container`;
+
+  // Add timestamp if provided
+  if (timestamp) {
+    const timestampDiv = document.createElement("div");
+    timestampDiv.className = "message-timestamp";
+    timestampDiv.textContent = formatTimestamp(timestamp);
+    container.appendChild(timestampDiv);
+  }
 
   if (isDev === true || isDev === "true") {
     const msgTextarea = document.createElement("textarea");
@@ -270,13 +339,19 @@ function addMessage(text, sender) {
     const msgDiv = document.createElement("div");
     msgDiv.className = `message ${sender}`;
     if (sender === "bot") {
-      // For bot messages, start empty and gradually fill
-      msgDiv.innerText = "";
       container.appendChild(msgDiv);
       chatDiv.appendChild(container);
-      chatDiv.scrollTop = chatDiv.scrollHeight;
-      // Gradually print the text
-      printMessageGradually(text, msgDiv);
+
+      if (isHistorical) {
+        // Historical messages: show immediately (no typing effect)
+        msgDiv.innerText = text;
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+      } else {
+        // Live messages: gradual typing effect
+        msgDiv.innerText = "";
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+        printMessageGradually(text, msgDiv);
+      }
     } else {
       // For user messages, show immediately
       msgDiv.innerText = text;
@@ -343,6 +418,13 @@ function printMessageGradually(text, element, speed = 30) {
 
 function sendMessage() {
   console.log("Sending message...");
+
+  // AUTHENTICATION CHECK: Require login to send messages
+  if (REQUIRE_AUTH_TO_CHAT && !isAuthenticated) {
+    showLoginModal();
+    return; // Stop here - don't send message
+  }
+
   const input = document.getElementById("messageInput");
   const promptInput = document.getElementById("promptInput");
   const msg = input.value.trim();
@@ -350,7 +432,7 @@ function sendMessage() {
 
   if (!msg) return; // Don't send empty messages
 
-  addMessage(msg, "user");
+  addMessage(msg, "user", new Date().toISOString());
 
   // Add loading animation
   const loadingContainer = addLoadingMessage();
@@ -373,9 +455,9 @@ function sendMessage() {
 
       if (data.error) {
         console.error("Error:", data.error);
-        addMessage("Error: " + data.error, "bot");
+        addMessage("Error: " + data.error, "bot", new Date().toISOString(), false);
       } else {
-        addMessage(data.reply, "bot");
+        addMessage(data.reply, "bot", new Date().toISOString(), false);
 
         // Update emotional state if provided
         if (data.emotion && data.intensity !== undefined) {
@@ -401,7 +483,7 @@ function sendMessage() {
       removeLoadingMessage(loadingContainer);
 
       console.error("Fetch error:", error);
-      addMessage("Error: Failed to send message", "bot");
+      addMessage("Error: Failed to send message", "bot", new Date().toISOString(), false);
     });
 
   input.value = "";
@@ -595,6 +677,133 @@ function handleKeyPress(event) {
 function autoResize(textarea) {
   textarea.style.height = "auto";
   textarea.style.height = textarea.scrollHeight + "px";
+}
+
+// =============================================================================
+// Authentication Functions
+// =============================================================================
+
+function showLoginModal() {
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.style.display = "block";
+
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close" onclick="closeLoginModal()">&times;</span>
+      <h4>Sign In to Chat with Charlotte</h4>
+      <div class="save-form">
+        <div class="form-group">
+          <label for="loginEmail">Email:</label>
+          <input type="email" id="loginEmail" placeholder="Enter your email..." autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password:</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password..." autocomplete="current-password">
+        </div>
+        <div id="loginError" class="error-message" style="display: none;"></div>
+        <div class="save-actions">
+          <button onclick="closeLoginModal()" class="secondary-btn">Cancel</button>
+          <button onclick="confirmLogin()" class="primary-btn">Sign In</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Focus on email field
+  setTimeout(() => {
+    document.getElementById("loginEmail").focus();
+  }, 100);
+
+  // Allow Enter key to submit
+  document.getElementById("loginPassword").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      confirmLogin();
+    }
+  });
+}
+
+function closeLoginModal() {
+  const modal = document.querySelector(".modal");
+  if (modal) {
+    modal.remove();
+  }
+}
+
+function confirmLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const errorDiv = document.getElementById("loginError");
+
+  if (!email || !password) {
+    errorDiv.textContent = "Please enter both email and password.";
+    errorDiv.style.display = "block";
+    return;
+  }
+
+  // Hide previous error
+  errorDiv.style.display = "none";
+
+  // Disable button during login
+  const loginBtn = document.querySelector(".modal-content .primary-btn");
+  const originalText = loginBtn.textContent;
+  loginBtn.textContent = "Signing in...";
+  loginBtn.disabled = true;
+
+  fetch("/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: email,
+      password: password,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.error) {
+        errorDiv.textContent = data.error;
+        errorDiv.style.display = "block";
+        loginBtn.textContent = originalText;
+        loginBtn.disabled = false;
+      } else {
+        // Login successful - reload page to refresh UI
+        console.log("✓ Login successful:", data.user.username);
+        window.location.reload();
+      }
+    })
+    .catch((error) => {
+      console.error("Login error:", error);
+      errorDiv.textContent = "Failed to connect to server. Please try again.";
+      errorDiv.style.display = "block";
+      loginBtn.textContent = originalText;
+      loginBtn.disabled = false;
+    });
+}
+
+function logout() {
+  if (!confirm("Are you sure you want to logout?")) {
+    return;
+  }
+
+  fetch("/auth/logout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        console.log("✓ Logout successful");
+        window.location.reload();
+      } else {
+        alert("Logout failed: " + (data.error || "Unknown error"));
+      }
+    })
+    .catch((error) => {
+      console.error("Logout error:", error);
+      alert("Failed to logout. Please try again.");
+    });
 }
 
 function populateInitialData() {

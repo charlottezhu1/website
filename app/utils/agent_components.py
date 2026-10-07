@@ -145,7 +145,7 @@ class ConversationManager:
             raise
 
     def get_relevant_conversations(
-        self, user_message: str, limit: int = 3
+        self, user_message: str, limit: int = 15
     ) -> List[Dict]:
         """Retrieve relevant conversations based on recency and metadata (embeddings disabled)"""
         try:
@@ -488,7 +488,7 @@ class ContextRetriever:
         self.conversations_table = "saved_conversations"
 
     def retrieve_relevant_conversation(
-        self, user_message: str, limit: int = 3
+        self, user_message: str, limit: int = 15
     ) -> Dict[str, Any]:
         """Retrieve relevant conversation (multiple turn conversation with longer context / length) based on user message"""
         try:
@@ -565,43 +565,49 @@ class ContextRetriever:
             return []
 
     def retrieve_relevant_context(
-        self, user_message: str, limit: int = 5
+        self, user_message: str, limit: int = 15, user_id: str = None
     ) -> Dict[str, Any]:
         """Retrieve relevant context (single conversation back and forth) based on user message"""
         try:
             print("\n=== DEBUG: RETRIEVING CONTEXT ===")
             print("User message:", user_message)
+            print("User ID:", user_id)
 
             # Get recent conversations (last 24 hours)
             recent_context = self._get_recent_context(limit)
             print("Recent context count:", len(recent_context))
 
-            # Get relevant historical context based on embedding similarity
-            historical_context = self._get_historical_context(user_message, limit)
-            print("Historical context count:", len(historical_context))
+            # Get user-specific conversation history if user_id is provided
+            user_specific_history = []
+            if user_id:
+                user_specific_history = self._get_user_conversation_history(user_id)
+                print("User-specific history count:", len(user_specific_history))
 
-            # Generate conversation summary
-            summary = self._generate_summary(recent_context + historical_context)
-            print("Generated summary:", summary)
+            # Get relevant historical context based on embedding similarity
+            # DISABLED - uses embeddings (for future implementation)
+            # historical_context = self._get_historical_context(user_message, limit)
+            # print("Historical context count:", len(historical_context))
 
             return {
                 "recent_context": recent_context,
-                "historical_context": historical_context,
-                "conversation_summary": summary,
+                "user_specific_history": user_specific_history,
+                # "historical_context": historical_context,  # Disabled - uses embeddings
             }
 
         except Exception as e:
             print(f"Error retrieving context: {e}")
             return {
                 "recent_context": [],
-                "historical_context": [],
-                "conversation_summary": "",
+                "user_specific_history": [],
+                # "historical_context": [],  # Disabled - uses embeddings
             }
 
     def _get_recent_context(self, limit: int) -> List[Dict]:
-        """Get recent conversation context"""
+        """Get recent conversation context with usernames"""
         try:
             yesterday = datetime.now() - timedelta(days=1)
+
+            # Step 1: Fetch memory_stream records
             response = (
                 supabase_extension.client.table(self.memory_table)
                 .select("*")
@@ -611,9 +617,33 @@ class ContextRetriever:
                 .execute()
             )
 
+            memories = response.data
+
+            # Step 2: Extract unique user_ids and fetch usernames
+            user_ids = list(set([m.get("user_id") for m in memories if m.get("user_id")]))
+
+            username_map = {}
+            if user_ids:
+                profiles_response = (
+                    supabase_extension.client.table("user_profiles")
+                    .select("id, username")
+                    .in_("id", user_ids)
+                    .execute()
+                )
+
+                # Create username mapping
+                for profile in profiles_response.data:
+                    username_map[profile["id"]] = profile["username"]
+
+            # Step 3: Enrich memories with usernames
+            for memory in memories:
+                user_id = memory.get("user_id")
+                memory["username"] = username_map.get(user_id, "someone")
+
             print("\n=== DEBUG: RECENT CONTEXT ===")
-            print(f"Found {len(response.data)} recent items")
-            return response.data
+            print(f"Found {len(memories)} recent items")
+            return memories
+
         except Exception as e:
             print(f"Error getting recent context: {e}")
             return []
@@ -644,6 +674,47 @@ class ContextRetriever:
 
         except Exception as e:
             print(f"Error getting historical context: {e}")
+            return []
+
+    def _get_user_conversation_history(self, user_id: str, limit: int = 100) -> List[Dict]:
+        """Get all-time conversation history for a specific user"""
+        try:
+            print(f"\n=== DEBUG: USER CONVERSATION HISTORY for user_id: {user_id} ===")
+
+            # Fetch all conversations with this user, ordered by newest first
+            response = (
+                supabase_extension.client.table(self.memory_table)
+                .select("user_message, agent_response, created_at, user_id")
+                .eq("user_id", user_id)
+                .order("created_at", desc=True)
+                .limit(limit)
+                .execute()
+            )
+
+            memories = response.data if response.data else []
+
+            # Fetch username for this user
+            if user_id and memories:
+                profile_response = (
+                    supabase_extension.client.table("user_profiles")
+                    .select("id, username")
+                    .eq("id", user_id)
+                    .execute()
+                )
+
+                username = "user"
+                if profile_response.data and len(profile_response.data) > 0:
+                    username = profile_response.data[0].get("username", "user")
+
+                # Enrich memories with username
+                for memory in memories:
+                    memory["username"] = username
+
+            print(f"Found {len(memories)} historical conversations with this user")
+            return memories
+
+        except Exception as e:
+            print(f"Error getting user conversation history: {e}")
             return []
 
     def _extract_keywords(self, text: str) -> List[str]:
@@ -1017,37 +1088,55 @@ def format_context_for_prompt(context: Dict[str, Any]) -> str:
     recent_context = context.get("recent_context", [])
     if recent_context:
         context_parts.append("Recent conversation context:")
-        for item in recent_context[-3:]:  # Last 3 items
+        for item in recent_context[-15:]:  # Last 15 items
             if isinstance(item, dict):
                 user_msg = item.get("user_message", "")
                 agent_msg = item.get("agent_response", "")
-                if user_msg or agent_msg:
-                    if user_msg:
-                        context_parts.append(f"User: {user_msg}")
-                    if agent_msg:
-                        context_parts.append(f"Assistant: {agent_msg}")
-        context_parts.append("")
 
-    # Add historical context if available
-    historical_context = context.get("historical_context", [])
-    if historical_context:
-        context_parts.append("Relevant historical context:")
-        for item in historical_context[:3]:  # First 3 items
-            if isinstance(item, dict):
-                user_msg = item.get("user_message", "")
-                agent_msg = item.get("agent_response", "")
+                # Extract username (already enriched by _get_recent_context)
+                username = item.get("username", "someone")
+
                 if user_msg or agent_msg:
                     if user_msg:
-                        context_parts.append(f"User: {user_msg}")
+                        context_parts.append(f"{username}: {user_msg}")
                     if agent_msg:
                         context_parts.append(f"Charlotte: {agent_msg}")
         context_parts.append("")
 
-    # Add summary if available
-    summary = context.get("conversation_summary", "")  # Updated key name
-    if summary:
-        context_parts.append(f"Context summary: {summary}")
+    # Add user-specific conversation history if available
+    user_history = context.get("user_specific_history", [])
+    if user_history:
+        # Extract username from first message
+        username = user_history[0].get("username", "user") if user_history else "user"
+
+        context_parts.append(f"Past conversation context with {username}:")
+        # Reverse to show oldest first (chronological order for learning)
+        for item in reversed(user_history):
+            if isinstance(item, dict):
+                user_msg = item.get("user_message", "")
+                agent_msg = item.get("agent_response", "")
+
+                if user_msg or agent_msg:
+                    if user_msg:
+                        context_parts.append(f"{username}: {user_msg}")
+                    if agent_msg:
+                        context_parts.append(f"Charlotte: {agent_msg}")
         context_parts.append("")
+
+    # # Add historical context if available - DISABLED (uses embeddings)
+    # historical_context = context.get("historical_context", [])
+    # if historical_context:
+    #     context_parts.append("Relevant historical context:")
+    #     for item in historical_context[:3]:  # First 3 items
+    #         if isinstance(item, dict):
+    #             user_msg = item.get("user_message", "")
+    #             agent_msg = item.get("agent_response", "")
+    #             if user_msg or agent_msg:
+    #                 if user_msg:
+    #                     context_parts.append(f"User: {user_msg}")
+    #                 if agent_msg:
+    #                     context_parts.append(f"Charlotte: {agent_msg}")
+    #     context_parts.append("")
 
     return "\n".join(context_parts)
 

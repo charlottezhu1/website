@@ -1140,6 +1140,14 @@ textarea {
 }
 
 /* ===== MESSAGE STYLES ===== */
+.message-timestamp {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #888;
+  margin: 10px 0 5px 0;
+  font-weight: 400;
+}
+
 .message {
   max-width: 80%;
   word-wrap: break-word;
@@ -2114,4 +2122,95 @@ textarea {
 /* Ensure the chat container has smooth scrolling */
 .chat-box {
   scroll-behavior: smooth;
+}
+
+/* =============================================================================
+   Authentication UI Styles
+   ============================================================================= */
+
+/* Sidebar header with flexbox layout */
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+/* Sidebar authentication button */
+.sidebar-auth-btn {
+  font-size: 12px;
+  padding: 4px 10px;
+  min-width: 60px;
+}
+
+/* Navbar authentication button (deprecated - kept for backwards compatibility) */
+.navbar-auth-btn {
+  font-size: 14px;
+  padding: 6px 12px;
+  margin-left: 10px;
+  min-width: 70px;
+}
+
+/* User greeting in navbar */
+.user-greeting {
+  color: #d4a017;
+  font-weight: 500;
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+/* User profile display in sidebar */
+.user-profile-display {
+  padding: 12px;
+  background: transparent;
+  border-left: 3px solid #fae29c;
+  padding-left: 15px;
+  margin-bottom: 10px;
+}
+
+.user-profile-display p {
+  margin: 6px 0;
+  color: #444;
+  font-size: 0.95em;
+}
+
+.user-profile-display strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.auth-note {
+  color: #666;
+  font-style: italic;
+  font-size: 0.9em;
+  margin-top: 8px;
+}
+
+/* Auth prompt in sidebar */
+.auth-prompt {
+  color: #666;
+  font-style: italic;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.auth-prompt a {
+  color: #d4a017;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-prompt a:hover {
+  border-bottom: 1px solid #d4a017;
+}
+
+/* Error message in login modal */
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  border-left: 3px solid #c33;
 }
