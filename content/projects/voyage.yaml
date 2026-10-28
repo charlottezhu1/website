@@ -1,9 +1,12 @@
 slug: voyage
 title: Voyage
-description: An exploration app for study abroad programs for Stanford students.
+description: A mobile app that helps Stanford study-abroad students find local activities and build community, with an AI itinerary generator.
 year: 2024
 categories: [product, design]
+technologies: [Figma, User interviews, RITE testing, A/B testing]
 thumbnail: images/cs247s/voyage.png
+role: Co-designer, team of two
+outcome: Interviews, RITE testing, and an A/B-tested posting flow
 links:
   slides: files/presentations/voyage.pdf
 priority: 70
