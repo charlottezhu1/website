@@ -1,9 +1,13 @@
 slug: echo
 title: Echo
-description: A mystery game.
+description: An escape-room-in-a-box murder mystery. Play a journalist's ghost and solve four linked puzzles across paper props and a web phone and laptop.
 year: 2024
-categories: [design, creative]
+categories: [design, product, creative]
+technologies: [Twine, Web prototype, Paper prototyping, Playtesting]
 thumbnail: images/cs247g/echo.png
+role: Co-designer, team of four
+outcome: Refined through 8 playtests
 links:
+  demo: https://jlrudolph9.github.io/echo-game
   writeup: https://mechanicsofmagic.com/2024/06/08/p2-echo/
 priority: 80
