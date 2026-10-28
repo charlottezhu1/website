@@ -1,0 +1,13 @@
+slug: vera
+title: "VERA: A Tailored Warning System for RAG Models"
+description: Enhancing critical thinking with AI through a warning system for retrieval-augmented generation.
+year: 2025
+categories: [research, ai, engineering]
+thumbnail: images/vera/vera.png
+thumbnail_fit: contain   # show the whole diagram instead of cropping it
+role: First author
+outcome: Workshop paper, Human-AI Interaction for Augmented Reasoning (CHI 2025)
+links:
+  preprint: https://arxiv.org/abs/2504.16883
+  slides: files/presentations/vera.pdf
+priority: 50

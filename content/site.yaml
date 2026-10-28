@@ -1,0 +1,45 @@
+# Editable site content. Presentation lives in app/templates; nothing here is HTML.
+# Paragraph text may use [label](https://url) links.
+# Keys marked TODO are placeholders waiting for real content.
+
+name: Charlotte Zhu
+# TODO: placeholder headline. Intentionally broad (not one career category).
+headline: Building human-centered AI products, systems, and research.
+affiliation: MS Computer Science (HCI) at Stanford · Stanford HCI Group
+photo: images/profile-web.jpg   # web-sized copy of profile.png
+photo_alt: Portrait of Charlotte Zhu
+
+links:
+  email: charlottezhu026 [at] gmail.com   # keep the [at]; the page turns it into a mailto link with JS (anti-scraping)
+  github: https://github.com/charlottezhu1   # TODO: confirm this is the right account
+  linkedin: https://www.linkedin.com/in/charlotte-zhu-4666121b9/
+  resume: files/CV_Xuyang_Zhu.pdf             # relative to app/static, or a full URL
+  publications: true                          # show the Publications page link
+
+about:
+  - "I'm Charlotte, a master's student in Computer Science (HCI) at Stanford, where I also earned my BS in Symbolic Systems with Honors ('25). I work in the [Stanford HCI Group](https://hci.stanford.edu/) with Prof. [Michael Bernstein](https://hci.stanford.edu/msb/) and in the [Culture and Emotion Lab](https://culture-emotion-lab.stanford.edu/) with Prof. [Jeanne Tsai](https://psychology.stanford.edu/people/jeanne-l-tsai)."
+  - "I build and study human-centered AI that cares about how people feel, across product, full-stack engineering, and research."
+  - "Research interests: human-centered AI, digital wellbeing, social computing, social media, affective computing, and cultures & affects."
+fun_facts:
+  - "I worked as course assistant for CS147: Intro to HCI and CS278: Social Computing. ALL of my mentee teams won course awards for 147."
+  - "I'm a fanfiction writer, zine editor, and cosplayer. I have written 250k+ words, self-published fanfiction zines, worked with 15+ artists and sold a total of 200+ copies at Cons."
+  - "Born and raised in China, I have spent my educational trajectory in Canada, the Netherlands, the US, Japan, and the UK."
+
+# Category ids are stable and used in project files. Labels can be renamed freely.
+categories:
+  product: Product
+  engineering: Engineering
+  ai: AI
+  research: Research
+  design: Design
+  creative: Creative
+
+# Initial gallery filter for each URL. The page layout is identical everywhere.
+route_filters:
+  "/": all
+  "/apm": product
+  "/engineering": engineering
+  "/research": research
+  "/design": design
+
+initial_visible: 8  # projects shown before "Show more"

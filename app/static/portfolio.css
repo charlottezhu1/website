@@ -1,0 +1,311 @@
+/* Temporary, deliberately plain styling for the portfolio skeleton.
+   Reuses style.css typography and colors; no final visual identity yet. */
+
+:root {
+  --pf-accent: #d4a017;
+  --pf-text: #333;
+  --pf-muted: #6b6b6b;
+  --pf-border: #e6dfc8;
+  --pf-card: #fff;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: #fff;
+  padding: 8px 12px;
+  z-index: 10;
+}
+.skip-link:focus {
+  left: 8px;
+  top: 8px;
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible {
+  outline: 3px solid #2a6df4;
+  outline-offset: 2px;
+}
+
+/* Header */
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #fae29c;
+}
+#author-name {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #444;
+  text-decoration: none;
+}
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+main section {
+  margin: 40px 0;
+  scroll-margin-top: 16px;
+}
+main h2 {
+  margin-bottom: 12px;
+}
+
+/* Intro */
+.intro {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.profile-photo {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.headline {
+  font-size: 1.3em;
+  margin: 4px 0;
+}
+.affiliation {
+  color: var(--pf-muted);
+  margin: 0 0 8px;
+}
+.link-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.fun-facts-list {
+  padding-left: 20px;
+}
+.fun-facts-list li {
+  margin-bottom: 8px;
+}
+
+/* Projects header + filter */
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 16px;
+}
+.filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter select {
+  font: inherit;
+  padding: 6px 10px;
+  border: 1px solid var(--pf-border);
+  border-radius: 6px;
+  background: #fff;
+  min-height: 40px;
+}
+
+/* Cards */
+.project-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.pf-card {
+  background: var(--pf-card);
+  border: 1px solid var(--pf-border);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.card-image {
+  display: block;
+  position: relative;
+  overflow: hidden; /* the frame is always 16:10, whatever the image's own shape */
+  aspect-ratio: 16 / 10;
+  background: #fff;
+  border-bottom: 1px solid var(--pf-border);
+}
+.card-image img,
+.image-placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.card-image img {
+  /* cover: images fill the whole frame (edges are cropped). */
+  object-fit: cover;
+}
+.card-image img.fit-contain {
+  /* contain: show the whole image (set thumbnail_fit: contain in the project file). */
+  object-fit: contain;
+}
+.image-placeholder {
+  background: repeating-linear-gradient(45deg, #efe9d4, #efe9d4 12px, #f6f1e0 12px, #f6f1e0 24px);
+}
+.card-image.no-image {
+  background: repeating-linear-gradient(45deg, #efe9d4, #efe9d4 12px, #f6f1e0 12px, #f6f1e0 24px);
+}
+.card-body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.card-title {
+  margin: 0;
+  padding: 0;
+  font-size: 1.2em;
+}
+.card-meta {
+  margin: 0;
+  display: flex;
+  gap: 10px;
+  font-size: 0.9em;
+  color: var(--pf-muted);
+}
+.card-description {
+  margin: 0;
+  font-size: 1em;
+}
+.card-outcome {
+  margin: 0;
+  font-size: 0.9em;
+  font-style: italic;
+  color: var(--pf-muted);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+}
+.chip {
+  font-size: 0.8em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fbf3d6;
+  color: #7a5c06;
+}
+.chips-tech .chip {
+  background: #eef0f4;
+  color: #444;
+}
+.card-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  font-size: 0.9em;
+}
+.card-links a {
+  display: inline-block;
+  padding: 3px 12px;
+  border: 1px solid var(--pf-accent);
+  border-radius: 999px;
+  text-decoration: none;
+}
+.card-links a:hover {
+  background: #fbf3d6;
+}
+.badge-placeholder {
+  background: #e8e8e8;
+  color: #555;
+  border-radius: 4px;
+  padding: 0 6px;
+  font-size: 0.8em;
+}
+
+/* Show more: only collapse when JS is present, so the list is complete without it. */
+.js .project-list:not(.expanded) .is-extra {
+  display: none;
+}
+.show-more {
+  margin: 20px auto 0;
+  display: block;
+  font: inherit;
+  padding: 8px 20px;
+  border: 1px solid var(--pf-border);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--pf-text); /* style.css makes all buttons white-on-gold; set our own */
+  cursor: pointer;
+  min-height: 40px;
+}
+.show-more:hover {
+  background: #fbf3d6;
+}
+.empty-state {
+  padding: 32px 0;
+  color: var(--pf-muted);
+}
+
+/* Detail page */
+/* Publications */
+.publication-list {
+  padding-left: 0;
+  list-style: none;
+}
+.publication-list li {
+  margin: 0 0 18px;
+}
+.pub-title {
+  font-weight: bold;
+}
+
+.site-footer {
+  margin-top: 48px;
+  padding-top: 12px;
+  border-top: 1px solid #fae29c;
+  color: var(--pf-muted);
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 12px;
+  }
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+  .filter {
+    width: 100%;
+  }
+  .filter select {
+    flex: 1;
+  }
+}

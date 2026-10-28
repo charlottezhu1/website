@@ -24,7 +24,7 @@
         <ul id="navlist" class="alignable pull-right navbar-ul">
           <li class="alignable pull-left nav-list"><a href="/">About</a> /</li>
           <li class="alignable pull-left nav-list">
-            <a href="{{ url_for('index.research') }}">Research</a> /
+            <a href="{{ url_for('portfolio.publications') }}">Research</a> /
           </li>
           <li class="alignable pull-left nav-list">
             <a
@@ -32,8 +32,8 @@
               target="_blank"
               >CV</a
             >
-            /
           </li>
+          {% if show_funzzies %}
           <li class="alignable pull-left nav-list">
             <div class="dropdown">
               <button class="dropdown-btn" onclick="toggleDropdown()">
@@ -47,6 +47,7 @@
               </div>
             </div>
           </li>
+          {% endif %}
           
         </ul>
       </div>
@@ -58,6 +59,11 @@
           <h2>Chat with Charlotte</h2>
         </header>
 
+        {% if chat_disabled %}
+        <p class="chat-disabled-notice">
+          Chat with Charlotte is paused for now. Check back soon.
+        </p>
+        {% else %}
         <div class="chat-layout">
           <!-- Main Chat Area -->
           <div class="chat-main">
@@ -174,9 +180,11 @@
             </div>
           </div>
         </div>
+        {% endif %}
       </div>
     </div>
 
+    {% if not chat_disabled %}
     <script>
       // Pass the is_dev variable from Flask to JavaScript
       const isDev = {{ 'true' if is_dev else 'false' }};
@@ -192,6 +200,7 @@
       };
     </script>
     <script src="{{ url_for('static', filename='chat.js') }}"></script>
+    {% endif %}
     <script>
       function toggleDropdown() {
         const dropdown = document.querySelector(".dropdown");

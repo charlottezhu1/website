@@ -1,0 +1,11 @@
+slug: babymilu-ai-evaluation
+title: "BabyMilu: AI Evaluation"
+description: "Placeholder: evaluating the AI behavior of the BabyMilu product."
+placeholder: true
+categories: [ai, engineering, research]
+priority: 62   # TODO: re-rank once real content is in
+sections:
+  overview: "TODO: Evaluation approach, datasets, metrics."
+  problem: "TODO"
+  contributions: "TODO"
+  outcome: "TODO"

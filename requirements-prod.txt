@@ -1,0 +1,4 @@
+# What the public site needs on a server (the portfolio only; no Supabase or numpy).
+flask
+pyyaml
+gunicorn

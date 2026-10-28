@@ -18,6 +18,21 @@ from app import supabase_extension
 
 chat_bp = Blueprint("chat", __name__)
 
+# Chat depends on Supabase (auth, memory, emotional state). Set to True to re-enable.
+CHAT_ENABLED = False
+
+
+@chat_bp.app_context_processor
+def inject_chat_enabled():
+    # show_funzzies: set True to bring back the Funzzies nav dropdown
+    return {"chat_enabled": CHAT_ENABLED, "show_funzzies": False}
+
+
+@chat_bp.before_request
+def block_when_disabled():
+    if not CHAT_ENABLED and request.endpoint != "chat.chat":
+        return jsonify({"error": "Chat is currently disabled"}), 503
+
 
 @chat_bp.route("/analyze-conversation", methods=["POST"])
 def analyze_conversation():
@@ -64,6 +79,9 @@ def populate_data():
 
 @chat_bp.route("/chat", methods=["GET", "POST"])
 def chat():
+    if not CHAT_ENABLED:
+        return render_template("chat.html", chat_disabled=True, articles=[])
+
     is_dev = session.get("dev", False)
     response = supabase_extension.client.table("writings").select("id, title").execute()
     articles = response.data

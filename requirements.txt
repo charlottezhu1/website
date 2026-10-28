@@ -7,3 +7,6 @@ numpy
 # Optional dependencies (if needed)
 # torch  # Usually installed automatically with sentence-transformers
 # transformers  # Usually installed automatically with sentence-transformers
+# Portfolio content and tests
+pyyaml
+pytest

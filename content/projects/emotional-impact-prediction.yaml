@@ -1,0 +1,12 @@
+slug: emotional-impact-prediction
+title: Modeling Experienced Emotions on Social Media
+description: Predicting the emotional impact of social media posts on the people who read them.
+year: 2025
+categories: [research, ai]
+thumbnail: images/emotion_prediction/teaser.png
+thumbnail_fit: contain   # show the whole diagram instead of cropping it
+role: First author
+outcome: Under review, CSCW '27
+links:
+  slides: files/presentations/emotion.pdf
+priority: 30

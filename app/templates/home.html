@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<section id="intro" class="intro" aria-labelledby="intro-heading">
+  {% if site.photo %}<img class="profile-photo" src="{{ asset_url(site.photo) }}" alt="{{ site.photo_alt }}" />{% endif %}
+  <div>
+    <h1 id="intro-heading">{{ site.name }}</h1>
+    <p class="headline">{{ site.headline }}</p>
+    {% if site.affiliation %}<p class="affiliation">{{ site.affiliation }}</p>{% endif %}
+    {% include "_contact_links.html" %}
+  </div>
+</section>
+
+<section id="about" aria-labelledby="about-heading">
+  <h2 id="about-heading">About</h2>
+  {% for paragraph in site.about %}<p>{{ paragraph|linkify }}</p>{% endfor %}
+</section>
+
+<section id="projects" aria-labelledby="projects-heading">
+  <div class="section-head">
+    <h2 id="projects-heading">Projects</h2>
+    <div class="filter">
+      <label for="category-filter">Filter projects</label>
+      <select id="category-filter" name="category" autocomplete="off" data-gallery-url="{{ url_for('portfolio.gallery_fragment') }}">
+        <option value="all"{% if category == 'all' %} selected{% endif %}>All ({{ counts['all'] }})</option>
+        {% for key, label in site.categories.items() %}
+        <option value="{{ key }}"{% if category == key %} selected{% endif %}>{{ label }} ({{ counts[key] }})</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div id="gallery-region">{% include "_gallery.html" %}</div>
+</section>
+
+<section id="publications" aria-labelledby="publications-heading">
+  <h2 id="publications-heading">Publications</h2>
+  {% include "_publication_list.html" %}
+</section>
+
+<section id="fun-facts" aria-labelledby="fun-facts-heading">
+  <h2 id="fun-facts-heading">Fun Facts</h2>
+  <ul class="fun-facts-list">
+    {% for item in site.fun_facts %}<li>{{ item }}</li>{% endfor %}
+  </ul>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='portfolio.js') }}"></script>
+{% endblock %}

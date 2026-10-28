@@ -1,0 +1,11 @@
+slug: babymilu-memory-system
+title: "BabyMilu: AI Memory System"
+description: "Placeholder: a memory system for the BabyMilu AI companion."
+placeholder: true
+categories: [ai, engineering]
+priority: 61   # TODO: re-rank once real content is in
+sections:
+  overview: "TODO: Architecture and what you built."
+  problem: "TODO"
+  contributions: "TODO"
+  outcome: "TODO"

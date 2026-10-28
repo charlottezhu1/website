@@ -1,0 +1,11 @@
+slug: advance-ai-rag-agents
+title: "ADVANCE.AI: RAG and Agent Work"
+description: "Placeholder: retrieval-augmented generation and agent work at ADVANCE.AI."
+placeholder: true
+categories: [ai, engineering]
+priority: 63   # TODO: re-rank once real content is in
+sections:
+  overview: "TODO: What you built and shipped."
+  problem: "TODO"
+  contributions: "TODO"
+  outcome: "TODO"

@@ -1,0 +1,32 @@
+# Moved from the old /research page and the home-page list. "* denotes equal contribution".
+# TODO: the old research page listed Vera with author "Zhu, X." only, the home page with
+# "Zhu, X., Chang, S., Kuik, A." (used below). Confirm the author list.
+- title: "Modeling Experienced Emotions on Social Media via Emotional Impact Prediction"
+  authors: "Zhu, X., Wang, Y.-C., Piccardi, T., Tsai, J., Saveski, M., & Bernstein, M. S."
+  venue: CSCW '27
+  status: Under review
+  year: 2026
+- title: "Investigating the impact of literacy on young people's attitudes and behaviors in human-LLM interactions"
+  authors: "ElKattan, A., Ibrahim, L., & Zhu, X."
+  venue: CHI '27
+  status: Under review
+  year: 2026
+- title: "Social Media Feed Elicitation"
+  authors: "Popowski, L., Wu, X., Zhu, X., Piccardi, T., & Bernstein, M. S."
+  venue: CHI '26, Honorable Mention Award
+  year: 2026
+  link: https://dl.acm.org/doi/10.1145/3772318.3791569
+- title: "LoveSims: Exploring \"what-if\" scenarios for relationship insights and compatibility"
+  authors: "Larrea, M.*, Zhang, X.*, & Zhu, X.*"
+  venue: Extended Abstracts of the CHI Conference on Human Factors in Computing Systems (CHI EA '25)
+  year: 2025
+  link: https://doi.org/10.1145/3706599.3720011
+- title: "Enhancing critical thinking with AI: A tailored warning system for RAG models"
+  authors: "Zhu, X., Chang, S., & Kuik, A."
+  venue: Human-AI Interaction for Augmented Reasoning Workshop, CHI '25
+  year: 2025
+  link: https://arxiv.org/abs/2504.16883
+- title: "Implied vs. expressed: Understanding the impact of social media posts on users' emotional experience with LLM predictions"
+  authors: "Zhu, X."
+  venue: Affective Computing Workshop, CHI '25
+  year: 2025

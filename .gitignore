@@ -52,3 +52,8 @@ instance/
 settings.py
 
 CLAUDE.md
+# Local working notes (not published)
+QUESTIONS.md
+docs/portfolio-audit.md
+.claude/launch.json
+app/static/images/profile.png

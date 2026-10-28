@@ -30,7 +30,7 @@
         <ul id="navlist" class="alignable pull-right navbar-ul">
           <li class="alignable pull-left nav-list"><a href="/">About</a> /</li>
           <li class="alignable pull-left nav-list">
-            <a href="{{ url_for('index.research') }}">Research</a> /
+            <a href="{{ url_for('portfolio.publications') }}">Research</a> /
           </li>
           <li class="alignable pull-left nav-list">
             <a
@@ -38,15 +38,15 @@
               target="_blank"
               >CV</a
             >
-            /
           </li>
+          {% if show_funzzies %}
           <li class="alignable pull-left nav-list">
             <div class="dropdown">
               <button class="dropdown-btn" onclick="toggleDropdown()">
                 Funzzies
               </button>
               <div class="dropdown-content" id="funzziesDropdown">
-                <a href="{{ url_for('chat.chat') }}">Chat</a>
+                {% if chat_enabled %}<a href="{{ url_for('chat.chat') }}">Chat</a>{% endif %}
                 <a href="{{ url_for('index.drawings') }}" class="selected"
                   >Drawings</a
                 >
@@ -55,6 +55,7 @@
               </div>
             </div>
           </li>
+          {% endif %}
         </ul>
       </div>
       <div style="clear: both"></div>

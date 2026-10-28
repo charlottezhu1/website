@@ -9,57 +9,42 @@ from flask import (
 )
 from app import supabase_extension
 from settings import DEV_PASSWORD
-from app.utils.projects_data import get_all_projects, get_project_by_id
 
 index_bp = Blueprint("index", __name__)
 
 
-@index_bp.route("/")
-def index():
-    response = supabase_extension.client.table("writings").select("id, title").execute()
-    articles = response.data
-    return render_template("index.html", articles=articles)
-
-
-@index_bp.route("/research")
-def research():
-    response = supabase_extension.client.table("writings").select("id, title").execute()
-    articles = response.data
-    return render_template("research.html", articles=articles)
+def fetch_articles(columns="id, title"):
+    """Writings list for page templates; empty if Supabase is unreachable."""
+    try:
+        return supabase_extension.client.table("writings").select(columns).execute().data
+    except Exception:
+        return []
 
 
 @index_bp.route("/drawings")
 def drawings():
-    response = supabase_extension.client.table("writings").select("id, title").execute()
-    articles = response.data
+    articles = fetch_articles()
     return render_template("drawings.html", articles=articles)
 
 
 @index_bp.route("/photos")
 def photos():
-    response = supabase_extension.client.table("writings").select("id, title").execute()
-    articles = response.data
+    articles = fetch_articles()
     return render_template("photos.html", articles=articles)
 
 
 @index_bp.route("/writings")
 def writings():
-    response = (
-        supabase_extension.client.table("writings")
-        .select("id, title, summary, created_at")
-        .execute()
-    )
-    articles = response.data
+    articles = fetch_articles("id, title, summary, created_at")
     return render_template("writings.html", articles=articles)
 
 
 @index_bp.route("/phd-tracker")
 def phd_tracker():
     if not session.get("dev"):
-        return redirect(url_for("index.index"))
+        return redirect(url_for("portfolio.home"))
 
-    response = supabase_extension.client.table("writings").select("id, title").execute()
-    articles = response.data
+    articles = fetch_articles()
     return render_template("phd-tracker.html", articles=articles)
 
 
@@ -136,20 +121,6 @@ def delete_phd_application(application_id):
         return jsonify({"error": f"Database error: {str(e)}"}), 500
 
 
-@index_bp.route("/projects")
-def projects():
-    projects = get_all_projects()
-    return render_template("projects.html", projects=projects)
-
-
-@index_bp.route("/projects/<int:project_id>")
-def project_detail(project_id):
-    project = get_project_by_id(project_id)
-    if not project:
-        return "Project not found", 404
-    return render_template("project_detail.html", project=project)
-
-
 @index_bp.route("/article/<int:article_id>")
 def show_article(article_id):
     response = (
@@ -177,10 +148,10 @@ def dev_login():
     password = request.form.get("password")
     if password == DEV_PASSWORD:
         session["dev"] = True
-    return redirect(url_for("index.index"))
+    return redirect(url_for("portfolio.home"))
 
 
 @index_bp.route("/logout_dev")
 def logout_dev():
     session.pop("dev", None)
-    return redirect(url_for("index.index"))
+    return redirect(url_for("portfolio.home"))

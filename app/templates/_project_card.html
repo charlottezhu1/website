@@ -1,0 +1,37 @@
+{# One project card. Optional fields are omitted when unset. #}
+{% macro project_card(project, categories, extra=False) %}
+<li class="pf-card{% if extra %} is-extra{% endif %}" data-slug="{{ project.slug }}">
+  <div class="card-image">
+    {% if project.thumbnail %}
+      <img src="{{ asset_url(project.thumbnail) }}" alt=""{% if project.thumbnail_fit == 'contain' %} class="fit-contain"{% endif %} loading="lazy" onerror="this.closest('.card-image').classList.add('no-image'); this.remove();" />
+    {% else %}
+      <span class="image-placeholder" aria-hidden="true"></span>
+    {% endif %}
+  </div>
+  <div class="card-body">
+    <h3 class="card-title">{{ project.title }}</h3>
+    <p class="card-meta">
+      {% if project.year %}<span>{{ project.year }}</span>{% endif %}
+      {% if project.role %}<span>{{ project.role }}</span>{% endif %}
+      {% if project.placeholder %}<span class="badge badge-placeholder">Placeholder</span>{% endif %}
+    </p>
+    <p class="card-description">{{ project.description }}</p>
+    {% if project.outcome %}<p class="card-outcome">{{ project.outcome }}</p>{% endif %}
+    <ul class="chips" aria-label="Categories">
+      {% for cat in project.categories %}<li class="chip">{{ categories[cat] }}</li>{% endfor %}
+    </ul>
+    {% if project.technologies %}
+    <ul class="chips chips-tech" aria-label="Technologies">
+      {% for tech in project.technologies %}<li class="chip">{{ tech }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% if project.external_links %}
+    <ul class="card-links">
+      {% for label, target in project.external_links %}
+      <li><a href="{{ asset_url(target) }}" target="_blank" rel="noopener noreferrer" aria-label="{{ label }}: {{ project.title }}">{{ label }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</li>
+{% endmacro %}

@@ -1,0 +1,16 @@
+slug: social-media-feed-elicitation
+title: Social Media Feed Elicitation
+description: Eliciting people's experiences of their social media feeds.
+year: 2025
+categories: [research]
+outcome: Under review, CHI '26
+links:
+  slides: files/presentations/elicitation.pdf
+priority: 20
+sections:
+  overview: |
+    "Social Media Feed Elicitation." Authors: Popowski, Wu, Zhu, Piccardi, and Bernstein.
+    Under review at CHI '26. The linked file is the slides.
+  problem: "TODO: Problem and motivation."
+  contributions: "TODO: Your contributions."
+  outcome: "TODO: Findings."

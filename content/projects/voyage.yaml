@@ -1,0 +1,9 @@
+slug: voyage
+title: Voyage
+description: An exploration app for study abroad programs for Stanford students.
+year: 2024
+categories: [product, design]
+thumbnail: images/cs247s/voyage.png
+links:
+  slides: files/presentations/voyage.pdf
+priority: 70

@@ -1,0 +1,11 @@
+slug: cross-cultural-vlm-emotion
+title: Cross-Cultural VLM and Emotion Research
+description: "Placeholder: cross-cultural emotion perception in vision-language models."
+placeholder: true
+categories: [research, ai]
+priority: 64   # TODO: re-rank once real content is in
+sections:
+  overview: "TODO: Research question and status."
+  problem: "TODO"
+  contributions: "TODO"
+  outcome: "TODO"

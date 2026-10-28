@@ -1,0 +1,19 @@
+{# Server-rendered gallery. Used for the first page load and for dropdown changes. #}
+{% from "_project_card.html" import project_card %}
+<div id="gallery" data-category="{{ category }}" data-initial-visible="{{ initial_visible }}">
+  <p id="gallery-status" class="visually-hidden" role="status" aria-live="polite">
+    Showing {{ shown|length }} project{{ '' if shown|length == 1 else 's' }}{% if category != 'all' %} in {{ site.categories[category] }}{% endif %}.
+  </p>
+  {% if not shown %}
+    <p class="empty-state">No projects in this category yet. Try another category, or choose All.</p>
+  {% else %}
+    <ul class="project-grid project-list" id="project-list">
+      {% for project in shown %}{{ project_card(project, site.categories, extra=(loop.index > initial_visible)) }}{% endfor %}
+    </ul>
+    {% if shown|length > initial_visible %}
+    <button type="button" class="show-more" id="show-more" aria-controls="project-list" aria-expanded="false" data-more="Show more ({{ shown|length - initial_visible }})" data-less="Show less">
+      Show more ({{ shown|length - initial_visible }})
+    </button>
+    {% endif %}
+  {% endif %}
+</div>

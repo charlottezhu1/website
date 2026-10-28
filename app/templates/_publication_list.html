@@ -1,0 +1,11 @@
+{# Shared by the home page Publications section and /publications. #}
+<p class="note">* denotes equal contribution.</p>
+<ul class="publication-list">
+  {% for pub in publications %}
+  <li>
+    {% if pub.link %}<a class="pub-title" href="{{ asset_url(pub.link) }}" target="_blank" rel="noopener noreferrer">{{ pub.title }}</a>{% else %}<span class="pub-title">{{ pub.title }}</span>{% endif %}<br />
+    <span class="pub-authors">{{ pub.authors }}</span><br />
+    <span class="pub-venue"><em>{{ pub.venue }}</em>{% if pub.status %} ({{ pub.status }}){% endif %}, {{ pub.year }}</span>
+  </li>
+  {% endfor %}
+</ul>

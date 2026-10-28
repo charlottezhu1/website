@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}{{ site.name }}{% endblock %}</title>
+    <meta name="description" content="{% block description %}{{ site.name }}: {{ site.headline }}{% endblock %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='portfolio.css') }}" />
+    <script>document.documentElement.classList.add("js");</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="wrapper">
+      <header class="site-header">
+        <a id="author-name" href="{{ url_for('portfolio.home') }}">{{ site.name }}</a>
+        <nav aria-label="Main">
+          <ul class="site-nav">
+            <li><a href="{{ nav_base }}#about">About</a></li>
+            <li><a href="{{ nav_base }}#projects">Projects</a></li>
+            {% if show_publications %}<li><a href="{{ nav_base }}#publications">Publications</a></li>{% endif %}
+            <li><a href="{{ nav_base }}#fun-facts">Fun Facts</a></li>
+          </ul>
+        </nav>
+      </header>
+      <main id="main">
+        {% block content %}{% endblock %}
+      </main>
+      <footer class="site-footer">
+        <p>&copy; {{ site.name }}</p>
+      </footer>
+    </div>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

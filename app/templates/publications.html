@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Publications · {{ site.name }}{% endblock %}
+{% block content %}
+<section aria-labelledby="pubs-heading">
+  <h1 id="pubs-heading">Publications</h1>
+  {% include "_publication_list.html" %}
+</section>
+{% endblock %}

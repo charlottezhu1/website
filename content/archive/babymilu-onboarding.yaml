@@ -1,0 +1,11 @@
+slug: babymilu-onboarding
+title: "BabyMilu: Onboarding and Growth"
+description: "Placeholder: product onboarding and growth work at BabyMilu."
+placeholder: true
+categories: [product]
+priority: 60   # TODO: re-rank once real content is in
+sections:
+  overview: "TODO: What BabyMilu is and what you owned here."
+  problem: "TODO"
+  contributions: "TODO"
+  outcome: "TODO: Metrics if you can share them."

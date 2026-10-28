@@ -1,0 +1,7 @@
+{# Contact links shown in the intro. Missing links are omitted. #}
+<ul class="link-list">
+  {% if site.links.email %}<li><a class="email-link" href="{{ nav_base }}#intro" data-email="{{ site.links.email }}">{{ site.links.email }}</a></li>{% endif %}
+  {% if site.links.github %}<li><a href="{{ site.links.github }}" target="_blank" rel="noopener noreferrer">GitHub</a></li>{% endif %}
+  {% if site.links.linkedin %}<li><a href="{{ site.links.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>{% endif %}
+  {% if site.links.resume %}<li><a href="{{ asset_url(site.links.resume) }}" target="_blank" rel="noopener noreferrer">Resume (PDF)</a></li>{% endif %}
+</ul>

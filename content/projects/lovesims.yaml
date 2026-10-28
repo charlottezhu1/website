@@ -1,0 +1,14 @@
+slug: lovesims
+title: "LoveSims: Exploring What-If Scenarios for Relationship Insights"
+description: Simulating "what-if" scenarios to give people insight into relationships and compatibility.
+year: 2025
+categories: [research, ai, design]
+thumbnail: images/loveSims/lovesims_intro.png
+thumbnail_fit: contain   # show the whole diagram instead of cropping it
+role: Co-first author
+outcome: Published at CHI EA '25 (Extended Abstracts)
+links:
+  paper: https://doi.org/10.1145/3706599.3720011
+  slides: files/presentations/lovesims.pdf
+  poster: files/posters/lovesims.pdf
+priority: 40
