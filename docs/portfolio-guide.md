@@ -39,7 +39,7 @@ thumbnail_fit: cover                 # optional: cover (fill, crops edges; defau
 role: Lead engineer                  # optional
 outcome: 1,200 users in the first month   # optional; only claims you can back up
 links:                               # optional. Each shows as a labelled button on the card:
-  paper: https://doi.org/...         # paper preprint report poster slides github demo writeup prototype
+  paper: https://doi.org/...         # paper preprint report poster slides github demo website writeup prototype
   github: https://github.com/you/my-project
 priority: 10                         # lower = earlier. Missing = 100
 ```

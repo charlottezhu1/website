@@ -1,14 +1,14 @@
 slug: rendezviewz
 title: RendezViewz
-description: Led a team of six building a social app to rank movies and shows, plan group watch parties, and get AI recommendations.
+description: A social app to rank movies and shows, plan group watch parties, and get AI recommendations.
 year: 2024
 categories: [product, engineering, design]
 technologies: [React Native, Expo, Supabase, OpenAI API, OMDb API]
 thumbnail: images/rendezviewz/intro_v2.png
-role: Team lead, full-stack developer
+role: Full-stack developer, team of six
 outcome: 30+ user interviews
 links:
   github: https://github.com/yishuchen2000/RendezViewz
   report: https://drive.google.com/file/d/1Jg-OlT0fIAXyXziXwD8aO3lyRan0dvwR/view?usp=sharing
-  writeup: https://hci.stanford.edu/courses/cs147/2023/au/projects/ThreadsandTrends/RendezViewz/
+  website: https://hci.stanford.edu/courses/cs147/2023/au/projects/ThreadsandTrends/RendezViewz/
 priority: 10

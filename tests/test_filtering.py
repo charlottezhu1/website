@@ -149,4 +149,4 @@ class TestContentValidation:
         links = {k: "u" for k in portfolio.LINK_LABELS}
         labels = [label for label, _ in Project("x", "X", "d", ["ai"], links=links).external_links]
         assert labels[:3] == ["Paper", "Preprint", "Report"], "papers come before code and demos"
-        assert "GitHub" in labels and "Slides" in labels and "Poster" in labels
+        assert {"GitHub", "Slides", "Poster", "Website", "Write-up"} <= set(labels)

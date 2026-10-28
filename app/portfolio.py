@@ -28,6 +28,7 @@ LINK_LABELS = {
     "slides": "Slides",
     "github": "GitHub",
     "demo": "Demo",
+    "website": "Website",
     "writeup": "Write-up",
     "prototype": "Prototype",
 }
